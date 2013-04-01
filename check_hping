@@ -1,0 +1,59 @@
+#!/usr/bin/php
+<?php
+if($argc != 9) {
+	echo "Usage error\n";
+	die(3);
+}
+if($argv[1] != '-H' && $argv[3] != '-p' && $argv[5] != '-w' && $argv[7] != '-c') {
+	echo "Usage error\n";
+	die(3);
+}
+$host = $argv[2];
+$port = $argv[4];
+if(!preg_match('/^[0-9]+$/', $port)) {
+	echo "Usage error\n";
+	die(3);
+}
+if(!preg_match('/^[0-9\.]+,[0-9]+%$/', $argv[6])) {
+	echo "Usage error\n";
+	die(3);
+}
+if(!preg_match('/^[0-9\.]+,[0-9]+%$/', $argv[8])) {
+	echo "Usage error\n";
+	die(3);
+}
+
+$parts = explode(',', $argv[6]);
+$rtt_warning = $parts[0];
+$loss_warning = substr($parts[1], 0, strlen($parts[1])-1);
+
+$parts = explode(',', $argv[8]);
+$rtt_critical = $parts[0];
+$loss_critical = substr($parts[1], 0, strlen($parts[1])-1);
+
+$output = array();
+exec("sudo hping3 -S -p $port -c 4 $host -P 2>&1", $output);
+
+$packets = 0;
+foreach($output as $row) {
+	if(preg_match('/flags=SA/', $row)) {
+		$packets++;
+	}
+	else if(preg_match('/round-trip/', $row)) {
+		$rtt_ms = preg_replace('/^.*= /', '', $row);
+		$rtt_ms = preg_replace('/\/.*/', '', $rtt_ms);
+	}
+}
+$loss = 100*(1-$packets/4);
+$state = 0;
+if($loss >= $loss_critical || $rtt_ms >= $rtt_critical) {
+	$state = 2;
+}
+else if($loss >= $loss_warning || $rtt_ms >= $rtt_warning) {
+	$state = 1;
+}
+
+$states = array(0 => 'OK', 1 => 'WARNING', 2 => 'CRITICAL');
+echo 'PING ' . $states[$state] . " - Packet loss = $loss%, RTA = $rtt_ms ms\n";
+die($state);
+
