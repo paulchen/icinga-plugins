@@ -1,0 +1,37 @@
+#!/bin/bash
+if [ "$1" == "" ]; then
+	echo "Usage: $0 <filename>"
+	exit 3
+fi
+
+FILE=$1
+if [ ! -f "$1" ]; then
+	echo "File $1 not found"
+	exit 3
+fi
+
+WARNING=`grep -c iwarn $FILE`
+WARNING=$((WARNING/2))
+
+CRITICAL=`grep -c icrit $FILE`
+CRITICAL=$((CRITICAL/2))
+
+UNKNOWN=`grep -c iunkn $FILE`
+UNKNOWN=$((UNKNOWN/2))
+
+echo "Munin status: $WARNING/$CRITICAL/$UNKNOWN (warning/critical/unknown)"
+
+if [ "$UNKNOWN" -gt 0 ]; then
+	exit 3
+fi
+
+if [ "$CRITICAL" -gt 0 ]; then
+	exit 2
+fi
+
+if [ "$WARNING" -gt 0 ]; then
+	exit 1
+fi
+
+exit 0
+
