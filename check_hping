@@ -1,5 +1,7 @@
 #!/usr/bin/php
 <?php
+
+# usage: check_hping -H <host> -p <port> -w <rtt,loss> -c <rtt,loss>
 if($argc != 9) {
 	echo "Usage error\n";
 	die(3);
