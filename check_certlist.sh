@@ -39,6 +39,10 @@ SCRIPT=`dirname $0`/check_cert.sh
 
 STATUS=0
 for FILE in $DIRECTORY/port_*; do
+	if [[ $FILE =~ \.example$ ]]; then
+		continue;
+	fi
+
 	PORT=`echo $FILE | sed -e "s/^.*_//g";`
 
 	for HOST in `cat $FILE`; do
