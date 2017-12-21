@@ -1,0 +1,52 @@
+#!/bin/bash
+
+# for nagios-nrpe-server:
+# command[temp_sda]=/opt/icinga/check_hddtemp -d /dev/sda -w 40 -c 45
+# command[temp_sdb]=/opt/icinga/check_hddtemp -d /dev/sdb -w 40 -c 45
+
+usage() {
+	echo foo
+	# TODO
+}
+
+if [ "$6" == "" ]; then
+	usage
+	exit 3
+fi
+if [ "$1" != "-d" ]; then
+	usage
+	exit 3
+fi
+if [ "$3" != "-w" ]; then
+	usage
+	exit 3
+fi
+if [ "$5" != "-c" ]; then
+	usage
+	exit 3
+fi
+if [ ! -b $2 ]; then
+	echo $2 is not a valid block device.
+	exit 3
+fi
+if [ $4 -gt $6 ]; then
+	echo $4 is greater than $6.
+	exit 3
+fi
+
+DEVICE=$2
+WARNING=$4
+CRITICAL=$6
+
+VALUE=`/usr/sbin/hddtemp -n "$DEVICE"`
+if [ $VALUE -lt $4 ]; then
+	echo $DEVICE ok - $VALUE degrees
+	exit 0
+fi
+if [ $VALUE -lt $6 ]; then
+	echo $DEVICE warning - $VALUE degrees
+	exit 1
+fi
+echo $DEVICE critical - $VALUE °C
+exit 2
+
