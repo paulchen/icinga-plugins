@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# for nagios-nrpe-server:
+# command[check_ircd_v4_6667]=/opt/icinga/check_irc.sh 127.0.0.1 6667
+# command[check_ircd_v6_6667]=/opt/icinga/check_irc.sh ::1 6667
+# command[check_ircd_v4_6697]=/opt/icinga/check_irc.sh 127.0.0.1 6697 --ssl
+# command[check_ircd_v6_6697]=/opt/icinga/check_irc.sh ::1 6697 --ssl
+
 test_irc() {
 	echo "NICK ircd$RANDOM"
 	echo "USER monitor localhost localhost :"
