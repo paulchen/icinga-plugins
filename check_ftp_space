@@ -1,4 +1,10 @@
 #!/bin/bash
+
+# requires ftp-space.sh to be run regularly
+
+# for nagios-nrpe-server:
+# command[check_ftp_space]=/opt/icinga/check_ftp_space -w 15 -c 10
+
 if [ "$1" != "-w" ]; then
 	echo "Usage error."
 	exit 3
