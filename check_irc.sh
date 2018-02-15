@@ -23,7 +23,7 @@ SSL=""
 if [ "$3" == "--ssl" ]; then
 	SSL="--ssl"
 fi
-TEMP=`test_irc | ncat $SSL $HOST $PORT -i 2 -w 8 2>> /tmp/check_irc.log | grep 'There are'` || ERROR=1
+TEMP=`test_irc | ncat $SSL $HOST $PORT -i 2 -w 8 2> /dev/null | grep 'There are'` || ERROR=1
 
 if [ "$ERROR" -ne 0 ]; then
 	echo "Error while checking status of IRC server"
