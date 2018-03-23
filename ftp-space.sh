@@ -1,7 +1,7 @@
 #!/bin/bash
 c=0
 while [ true ]; do
-	echo df | sftp u55033@u55033.your-backup.de 2> /dev/null | tail -n 1 > /tmp/ftp-space
+	echo df | sftp u170766@u170766.your-backup.de 2> /dev/null | tail -n 1 > /tmp/ftp-space
 	ERROR=${PIPESTATUS[1]}
 	if [ "$ERROR" -eq "0" ]; then
 		break
