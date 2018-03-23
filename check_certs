@@ -4,8 +4,8 @@
 # command[check_certs]=/opt/icinga/check_certs /etc/icinga/certlist
 # /etc/icinga/certlist contains a list of SSL certificates, one per line
 
-warning=1209600
-critical=604800
+warning=1728000
+critical=864000
 for cert in `cat $1`; do
 	critical_state=0
 	warning_state=0
