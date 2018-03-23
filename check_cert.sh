@@ -5,6 +5,16 @@ usage() {
 	exit 3
 }
 
+cleanup() {
+	rm -f $CERTFILE
+	rm -f $DATAFILE
+	rm -f $DOMAINSFILE
+	rm -f $RAWFILE
+
+	rmdir $CERTDIR
+}
+
+
 DEBUG=0
 while getopts ":H:p:w:d" opt; do
 	case $opt in
@@ -36,6 +46,7 @@ fi
 
 CERTDIR=/tmp/check_cert_$RANDOM
 
+RAWFILE=$CERTDIR/rawdata
 CERTFILE=$CERTDIR/cert.pem
 DATAFILE=$CERTDIR/certdata
 DOMAINSFILE=$CERTDIR/certdomains
@@ -45,9 +56,27 @@ mkdir -p $CERTDIR
 # TODO check every IP address
 # TODO support IPv6
 IP=`dig -t A +short $HOST|tail -n 1`
-echo openssl s_client -connect $IP:$PORT -servername $HOST -showcerts
+# echo openssl s_client -connect $IP:$PORT -servername $HOST -showcerts
 #exit 2
-echo '' | timeout 5 openssl s_client -connect $IP:$PORT -servername $HOST -showcerts 2>&1 | openssl x509  > $CERTFILE
+COUNT=0
+while [ "$COUNT" -le "3" ]; do
+	echo '' | timeout 5 openssl s_client -connect $IP:$PORT -servername $HOST -showcerts > $RAWFILE 2>&1 && break
+	COUNT=$((COUNT+1))
+done
+
+if [ "$COUNT" -eq "3" ]; then
+	echo "Unable to connect to $IP:$PORT"
+	cleanup
+	exit 3
+fi
+
+ERROR=0
+cat $RAWFILE | openssl x509  > $CERTFILE || ERROR=1
+if [ "$ERROR" -eq "1" ]; then
+	echo "Unable to process certificate for $IP:$PORT"
+	cleanup
+	exit 3
+fi
 
 STARTTIMESTAMP=`date --date="$(openssl x509 -in $CERTFILE -noout -startdate | cut -d= -f 2)" +%s`
 ENDTIMESTAMP=`date --date="$(openssl x509 -in $CERTFILE -noout -enddate | cut -d= -f 2)" +%s`
@@ -84,11 +113,7 @@ else
 fi
 
 if [ "$DEBUG" -eq 0 ] || [ "$EXITCODE" -eq 0 ]; then
-	rm -f $CERTFILE
-	rm -f $DATAFILE
-	rm -f $DOMAINSFILE
-
-	rmdir $CERTDIR
+	cleanup
 fi
 
 exit $EXITCODE
