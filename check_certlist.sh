@@ -60,7 +60,7 @@ for FILE in $DIRECTORY/port_*; do
 				STATUS=$ERRORCODE
 			fi
 
-			echo "$HOST:$PORT - $RESULT"
+			echo -n "$HOST:$PORT - $RESULT; "
 		fi
 	done
 done
@@ -68,6 +68,8 @@ done
 if [ "$STATUS" -eq 0 ]; then
 	echo "All certificates are valid"
 fi
+
+echo ""
 
 exit $STATUS
 
