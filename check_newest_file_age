@@ -293,15 +293,15 @@ do
         MAX_WARN_AGE=$(($warning * $multiplier))
         MAX_CRIT_AGE=$(($critical * $multiplier))
         if [ $FILE_AGE -gt $MAX_CRIT_AGE ]; then
-          OUTPUT="$OUTPUT ${dir}: ${FILE_AGE_UNITS}${abbreviation}"
+          OUTPUT="$OUTPUT ${dir}: ${FILE_AGE_UNITS} ${abbreviation}"
           set_exit_status $STATE_CRITICAL
         elif [ $FILE_AGE -gt $MAX_WARN_AGE ]; then
-          OUTPUT="$OUTPUT ${dir}: ${FILE_AGE_UNITS}${abbreviation}"
+          OUTPUT="$OUTPUT ${dir}: ${FILE_AGE_UNITS} ${abbreviation}"
           set_exit_status $STATE_WARNING
         else
           OK_FILE_COUNT=$(($OK_FILE_COUNT + 1))
           if [ "$verbose" ]; then
-            OUTPUT="$OUTPUT ${dir}: ${FILE_AGE_UNITS}${abbreviation}"
+            OUTPUT="$OUTPUT ${dir}: ${FILE_AGE_UNITS} ${abbreviation}"
           fi
         fi
         break
