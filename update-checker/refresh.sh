@@ -23,12 +23,12 @@ for DIR in */; do
 	fi
 
 	if [ ! -f update_available.sh ]; then
-		echo "Directory applications/$DIR/update_available.sh does not exist"
+		echo "File applications/$DIR/update_available.sh does not exist"
 		exit 2
 	fi
 
 	if [ ! -f update_installed.sh ]; then
-		echo "Directory applications/$DIR/update_installed.sh does not exist"
+		echo "File applications/$DIR/update_installed.sh does not exist"
 		exit 3
 	fi
 
