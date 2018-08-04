@@ -17,6 +17,11 @@ for DIR in */; do
 
 	cd "$DIR"
 
+	if [ -f ignore ]; then
+		cd ..
+		continue
+	fi
+
 	if [ ! -f update_available.sh ]; then
 		echo "Directory applications/$DIR/update_available.sh does not exist"
 		exit 2
