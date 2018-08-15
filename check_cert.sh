@@ -112,7 +112,7 @@ else
 	echo "Certificate for $HOST is valid and will not expire within $WARNING_DAYS days"
 fi
 
-if [ "$DEBUG" -eq 0 ] || [ "$EXITCODE" -eq 0 ]; then
+if [ "$DEBUG" -eq 0 ]; then
 	cleanup
 fi
 
