@@ -1,13 +1,33 @@
 #!/bin/bash
 DIRECTORY=`dirname "$0"`
+LOGFILE=/var/log/update-checker.log
+
+_log() {
+	DATE=`date --rfc-3339=seconds`
+	SEVERITY=$1
+	LOG_MESSAGE=$2
+
+	echo $DATE $SEVERITY $LOG_MESSAGE >> $LOGFILE
+}
+
+log() {
+	_log "INFO" "$1"
+}
+
+log_error() {
+	_log "ERROR" "$1"
+	echo "$1"
+}
 
 cd "$DIRECTORY"
 if [ ! -d applications ]; then
-	echo "Directory applications does not exist"
+	log_error "Directory applications does not exist"
 	exit 1
 fi
 
 cd applications
+
+log "Application startup"
 
 STATUS=0
 MESSAGE=""
@@ -16,6 +36,7 @@ for DIR in */; do
 	DIR="${DIR/\//}"
 
 	cd "$DIR"
+	log "Processing directory $DIR"
 
 	if [ -f ignore ]; then
 		cd ..
@@ -23,33 +44,60 @@ for DIR in */; do
 	fi
 
 	if [ ! -f update_available.sh ]; then
-		echo "File applications/$DIR/update_available.sh does not exist"
+		log_error "File applications/$DIR/update_available.sh does not exist"
 		exit 2
 	fi
 
 	if [ ! -f update_installed.sh ]; then
-		echo "File applications/$DIR/update_installed.sh does not exist"
+		log_error "File applications/$DIR/update_installed.sh does not exist"
 		exit 3
 	fi
 
+	rm -f /tmp/update_available.log
+	rm -f /tmp/update_installed.log
+
 	FAIL=0
-	AVAILABLE=`./update_available.sh` || FAIL=1
-	INSTALLED=`./update_installed.sh` || FAIL=1
+	AVAILABLE=`./update_available.sh` 2> /tmp/update_available.log || FAIL=1
+	INSTALLED=`./update_installed.sh` 2> /tmp/update_installed.log || FAIL=1
+
+	log "Output from update_available.sh: $AVAILABLE"
+	log "Output from update_installed.sh: $INSTALLED"
 
 	if [ "$FAIL" -ne "0" ]; then
-		echo "Error updating versions for application $1"
+		log_error "Error updating versions for application $1"
+
+		log_error "Error output from update_available.sh: "
+		cat /tmp/update_available.log >> $LOGFILE
+
+		log_error "Error output from update_installed.sh: "
+		cat /tmp/update_installed.log >> $LOGFILE
+
+		rm -f /tmp/update_available.log
+		rm -f /tmp/update_installed.log
+
 		exit 4
 	fi
 
+	rm -f /tmp/update_available.log
+	rm -f /tmp/update_installed.log
+
 	if [ "$AVAILABLE" == "$INSTALLED" ]; then
-		MESSAGE="$MESSAGE $DIR - OK ($AVAILABLE);"
+		APP_MESSAGE="$DIR - OK ($AVAILABLE);"
 	else
-		MESSAGE="$MESSAGE $DIR - update available ($INSTALLED -> $AVAILABLE);"
+		APP_MESSAGE="$DIR - update available ($INSTALLED -> $AVAILABLE);"
 		STATUS=2
 	fi
 
+	MESSAGE="$MESSAGE $APP_MESSAGE"
+
+	log "Resulting message: $APP_MESSAGE"
+	log "Processing directory $DIR completed"
+
 	cd ..
 done
+
+log "Full message: $MESSAGE"
+log "Execution completed"
 
 cd ..
 
