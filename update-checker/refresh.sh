@@ -103,5 +103,9 @@ cd ..
 
 rm -f update.status
 echo $STATUS >> update.status
+if [ "$MESSAGES" == "" ]; then
+	MESSAGE="No applications checked"
+fi
+
 echo $MESSAGE >> update.status
 
