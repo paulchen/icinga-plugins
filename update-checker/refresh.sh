@@ -56,14 +56,45 @@ for DIR in */; do
 	rm -f /tmp/update_available.log
 	rm -f /tmp/update_installed.log
 
-	FAIL=0
-	AVAILABLE=`./update_available.sh` 2> /tmp/update_available.log || FAIL=1
-	INSTALLED=`./update_installed.sh` 2> /tmp/update_installed.log || FAIL=1
+	UPDATE_FAIL=0
+	for a in 1 2 3; do
+		FAIL=0
+		AVAILABLE=`./update_available.sh` 2> /tmp/update_available.log || FAIL=1
 
-	log "Output from update_available.sh: $AVAILABLE"
-	log "Output from update_installed.sh: $INSTALLED"
+		log "Output from update_available.sh: $AVAILABLE"
 
-	if [ "$FAIL" -ne "0" ]; then
+		if [ "$FAIL" -eq "0" ]; then
+			if [ "$AVAILABLE" != "" ]; then
+				break;
+			fi
+		fi
+
+		FAIL=1
+		echo "Error while updating"
+	done
+	UPDATE_FAIL=$FAIL
+	
+	for a in 1 2 3; do
+		FAIL=0
+		INSTALLED=`./update_installed.sh` 2> /tmp/update_installed.log || FAIL=1
+
+		log "Output from update_installed.sh: $INSTALLED"
+
+		if [ "$FAIL" -eq "0" ]; then
+			if [ "$AVAILABLE" != "" ]; then
+				break;
+			fi
+		fi
+
+		FAIL=1
+		echo "Error while updating"
+	done
+	if [ "$UPDATE_FAIL" -eq "0" ]; then
+		UPDATE_FAIL=$FAIL
+	fi
+
+
+	if [ "$UPDATE_FAIL" -ne "0" ]; then
 		log_error "Error updating versions for application $1"
 
 		log_error "Error output from update_available.sh: "
