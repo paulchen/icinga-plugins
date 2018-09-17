@@ -87,7 +87,7 @@ for DIR in */; do
 		fi
 
 		FAIL=1
-		echo "Error while updating"
+		log_error "Error while updating (iteration $a)"
 	done
 	if [ "$UPDATE_FAIL" -eq "0" ]; then
 		UPDATE_FAIL=$FAIL
