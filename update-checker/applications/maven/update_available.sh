@@ -1,4 +1,4 @@
 #!/bin/bash
 
-../../lib/github_release.sh apache/maven
+wget https://maven.apache.org/download.cgi -q -O -|grep Downloading|sed -e 's/^.*Maven //;s/<.*$//'
 
