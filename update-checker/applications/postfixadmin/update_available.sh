@@ -1,5 +1,5 @@
 #!/bin/bash
 
-../../lib/github_release.sh postfixadmin/postfixadmin
+../../lib/github_release.sh postfixadmin/postfixadmin legacy
 
 
