@@ -1,0 +1,25 @@
+#!/bin/bash
+
+FILENAME=`ls -tra /var/log/pfclient|tail -n 1`
+DATE=`grep 'Successfully sent' "/var/log/pfclient/$FILENAME"| tail -n 1|sed -e "s/ \[.*$//"`
+UNIXDATE1=`date -u -d "$DATE" +%s`
+UNIXDATE2=`date -u +%s`
+AGE=$((UNIXDATE2 - UNIXDATE1))
+
+WARN=600
+CRITICAL=900
+
+if [ "`date +%H`" -lt 6 ] || [ "`date +%H`" -gt 21 ]; then
+	WARN=5400
+	CRITICAL=7200
+fi
+
+echo "Last update $AGE seconds ago"
+if [ "$AGE" -gt "$CRITICAL" ]; then
+	exit 2
+elif [ "$AGE" -gt "$WARN" ]; then
+	exit 1
+else
+	exit 0
+fi
+

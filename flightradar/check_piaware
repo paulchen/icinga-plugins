@@ -1,0 +1,44 @@
+#!/usr/bin/python3
+
+import json, time, sys, os.path
+
+statusfile = '/run/piaware/status.json'
+if not os.path.isfile(statusfile):
+    print('Unable to read status file')
+    sys.exit(3)
+
+with open('/run/piaware/status.json') as data_file:
+    data = json.load(data_file)
+
+last_send_time = int(data['time'])/1000
+age = int(time.time()) - last_send_time
+
+if age > 900:
+    print("Last update sent %s seconds ago" % age)
+    if age > 1800:
+        sys.exit(2)
+    sys.exit(1)
+
+
+worst_state = 'green'
+problems = []
+for key in ('piaware', 'adept'):
+#for key in ('piaware', 'mlat', 'adept', 'radio'):
+    state = data[key]['status']
+    if state == 'red':
+        worst_state = state
+    elif state == 'amber' and worst_state == 'green':
+        worst_state = state
+
+    if state != 'green':
+        problems.append("%s (%s)" % (key, state))
+
+if worst_state == 'green':
+    print('Everything fine.')
+    sys.exit(0)
+
+print('Problem(s): %s' % ', '.join(problems))
+if worst_state == 'amber':
+    sys.exit(1)
+sys.exit(2)
+

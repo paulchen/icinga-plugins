@@ -1,0 +1,21 @@
+#!/bin/bash
+
+LOGFILE=/var/log/opensky/opensky.log
+
+FILEAGE=`/usr/lib/nagios/plugins/check_file_age -w 600 -c 900 -f "$LOGFILE"`
+EXITCODE=$?
+
+if [ "$EXITCODE" -ne "0" ]; then
+    echo $FILEAGE|sed -e 's/ |.*//'
+    exit $EXITCODE
+fi
+
+ONLINE=`cat "$LOGFILE"|tail -n 42|grep -c 'currently online'`
+
+if [ "$ONLINE" -eq "0" ]; then
+    echo opensky-feeder currently not online.
+    exit 2
+fi
+
+echo Everything fine, relax.
+
