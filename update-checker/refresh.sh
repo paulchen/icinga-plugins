@@ -70,7 +70,7 @@ for DIR in */; do
 		fi
 
 		FAIL=1
-		echo "Error while updating"
+		log_error "Error while updating"
 	done
 	UPDATE_FAIL=$FAIL
 	
