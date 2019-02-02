@@ -70,25 +70,27 @@ for DIR in */; do
 		fi
 
 		FAIL=1
-		log_error "Error while updating"
+		log_error "Error while checking available version for $DIR (iteration $a)"
 	done
 	UPDATE_FAIL=$FAIL
 	
-	for a in 1 2 3; do
-		FAIL=0
-		INSTALLED=`./update_installed.sh` 2> /tmp/update_installed.log || FAIL=1
+	if [ "$UPDATE_FAIL" -eq "0" ]; then
+		for a in 1 2 3; do
+			FAIL=0
+			INSTALLED=`./update_installed.sh` 2> /tmp/update_installed.log || FAIL=1
 
-		log "Output from update_installed.sh: $INSTALLED"
+			log "Output from update_installed.sh: $INSTALLED"
 
-		if [ "$FAIL" -eq "0" ]; then
-			if [ "$AVAILABLE" != "" ]; then
-				break;
+			if [ "$FAIL" -eq "0" ]; then
+				if [ "$INSTALLED" != "" ]; then
+					break;
+				fi
 			fi
-		fi
 
-		FAIL=1
-		log_error "Error while updating (iteration $a)"
-	done
+			FAIL=1
+			log_error "Error while checking installed version for $DIR (iteration $a)"
+		done
+	fi
 	if [ "$UPDATE_FAIL" -eq "0" ]; then
 		UPDATE_FAIL=$FAIL
 	fi
@@ -100,8 +102,12 @@ for DIR in */; do
 		log_error "Error output from update_available.sh: "
 		cat /tmp/update_available.log >> $LOGFILE
 
-		log_error "Error output from update_installed.sh: "
-		cat /tmp/update_installed.log >> $LOGFILE
+		if [ -f /tmp/update_installed_log ]; then
+			log_error "Error output from update_installed.sh: "
+			cat /tmp/update_installed.log >> $LOGFILE
+		else
+			log_error "Installed version not checked"
+		fi
 
 		rm -f /tmp/update_available.log
 		rm -f /tmp/update_installed.log
