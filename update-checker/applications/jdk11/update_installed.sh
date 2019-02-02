@@ -1,6 +1,6 @@
 #!/bin/bash
 
-. /opt/jdk10/release
+. /opt/jdk11/release
 
 echo $JAVA_VERSION
 
