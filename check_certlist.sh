@@ -52,8 +52,14 @@ for FILE in $DIRECTORY/port_*; do
 #			echo "Skipping $HOST..."
 			continue
 		fi
+		if [ "$DEBUG" -eq 1 ]; then
+			echo Checking $HOST:$PORT...
+		fi	
 		RESULT=`bash $SCRIPT -H $HOST -p $PORT -w $WARNING_DAYS $DEBUGFLAG`
 		ERRORCODE=$?
+		if [ "$DEBUG" -eq 1 ]; then
+			echo "Error Code: $ERRORCODE, $RESULT"
+		fi	
 
 		if [ "$ERRORCODE" -gt 0 ]; then
 			if [ "$ERRORCODE" -gt "$STATUS" ]; then
