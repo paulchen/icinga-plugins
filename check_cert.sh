@@ -72,9 +72,9 @@ fi
 
 ERROR=0
 cat $RAWFILE | openssl x509  > $CERTFILE || ERROR=1
-if [ "$ERROR" -eq "1" ]; then
-	echo "Unable to process certificate for $IP:$PORT"
-	cleanup
+if [ "$ERROR" -ne "0" ]; then
+	echo "Unable to process certificate for $IP:$PORT (error code $ERROR), data in $CERTDIR"
+#	cleanup
 	exit 3
 fi
 
