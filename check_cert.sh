@@ -54,18 +54,25 @@ DOMAINSFILE=$CERTDIR/certdomains
 mkdir -p $CERTDIR
 
 # TODO check every IP address
-# TODO support IPv6
 IP=`dig -t A +short $HOST|tail -n 1`
+if [ "$IP" == "" ]; then
+	IP=`dig -t AAAA +short $HOST|tail -n 1`
+fi
+if [ "$IP" == "" ]; then
+	echo "Unable to determine IP address of $HOST"
+	cleanup
+	exit 3
+fi
 # echo openssl s_client -connect $IP:$PORT -servername $HOST -showcerts
 #exit 2
 COUNT=0
 while [ "$COUNT" -le "3" ]; do
-	echo '' | timeout 5 openssl s_client -connect $IP:$PORT -servername $HOST -showcerts > $RAWFILE 2>&1 && break
+	echo '' | timeout 5 openssl s_client -connect [$IP]:$PORT -servername $HOST -showcerts > $RAWFILE 2>&1 && break
 	COUNT=$((COUNT+1))
 done
 
 if [ "$COUNT" -eq "3" ]; then
-	echo "Unable to connect to $IP:$PORT"
+	echo "Unable to connect to [$IP]:$PORT"
 	cleanup
 	exit 3
 fi
@@ -73,7 +80,7 @@ fi
 ERROR=0
 cat $RAWFILE | openssl x509  > $CERTFILE || ERROR=1
 if [ "$ERROR" -ne "0" ]; then
-	echo "Unable to process certificate for $IP:$PORT (error code $ERROR), data in $CERTDIR"
+	echo "Unable to process certificate for [$IP]:$PORT (error code $ERROR), data in $CERTDIR"
 #	cleanup
 	exit 3
 fi

@@ -46,12 +46,6 @@ for FILE in $DIRECTORY/port_*; do
 	PORT=`echo $FILE | sed -e "s/^.*_//g";`
 
 	for HOST in `cat $FILE|grep -v '^#'`; do
-		# TODO support IPv6
-		IP=`dig -t A +short $HOST`
-		if [ "$IP" == "" ]; then
-#			echo "Skipping $HOST..."
-			continue
-		fi
 		if [ "$DEBUG" -eq 1 ]; then
 			echo Checking $HOST:$PORT...
 		fi	
