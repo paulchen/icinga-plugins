@@ -78,7 +78,7 @@ if [ "$COUNT" -eq "3" ]; then
 fi
 
 ERROR=0
-cat $RAWFILE | openssl x509  > $CERTFILE || ERROR=1
+cat $RAWFILE | openssl x509  > $CERTFILE || ERROR=$?
 if [ "$ERROR" -ne "0" ]; then
 	echo "Unable to process certificate for [$IP]:$PORT (error code $ERROR), data in $CERTDIR"
 #	cleanup
