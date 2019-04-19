@@ -1,0 +1,269 @@
+#!/usr/bin/perl -w
+#
+# check_pacman.pl - monitoring plugin
+#
+# Copyright (C) 2014 Bernd Arnold
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
+#
+
+use POSIX;
+use strict;
+use FindBin;
+use lib "$FindBin::Bin";
+use lib "/usr/local/icinga/libexec";
+use lib "/usr/share/nagios/libexec";
+use utils qw($TIMEOUT %ERRORS &print_revision &support);
+
+use Getopt::Long;
+Getopt::Long::Configure('bundling');
+
+my $PROGNAME = "check_pacman";
+
+sub print_help();
+sub print_usage();
+sub process_arguments();
+
+# Safety settings
+$ENV{'PATH'}     = '/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin';
+$ENV{'BASH_ENV'} = ''; 
+$ENV{'ENV'}      = '';
+
+my $status;
+
+my $state = "UNKNOWN";
+my $answer = "";
+my $perfdata = "";
+my $opt_h;
+my $opt_V;
+my $timeout;
+
+my @warning_msgs = ();
+my @critical_msgs = ();
+
+
+# Checking passed options (arguments)
+$status = process_arguments();
+
+# Print help and exit if an error happened during parsing the arguments
+if ($status != 0) {
+    print_help();
+    exit $ERRORS{'UNKNOWN'};
+}
+
+
+# Just in case of problems, let's not hang the monitoring system
+$SIG{'ALRM'} = sub {
+     print "ERROR: No response after $timeout seconds (alarm timeout)\n";
+     exit $ERRORS{"UNKNOWN"};
+};
+alarm($timeout);
+
+
+
+#
+#   Check packages
+#
+
+# Get Pacman's list of packages that needs updating
+my $output = `LC_ALL=C /usr/bin/pacman -Qu 2>&1 | grep -v ignored`;
+
+
+# Split lines
+my @lines = split /\n/, $output;
+
+
+# Number of lines from output
+my $pkgcount = scalar @lines;
+$perfdata .= "packages=$pkgcount ";
+
+
+if ( $pkgcount == 0 ) {
+    $answer .= "No packages need updating. ";
+} else {
+    $answer .= "$pkgcount package(s) need updating. ";
+    push @warning_msgs, "Found packages that needs an update";
+}
+
+
+#
+#   Check age of repository files
+#
+
+my $dirname = '/var/lib/pacman/sync';
+
+opendir( my $dh, $dirname );
+
+if ( ! $dh ) {
+    print "ERROR: Could not open directory '$dirname'.\n";
+    exit $ERRORS{"UNKNOWN"};
+};
+
+my @dbfiles = grep { /\.db$/ } readdir( $dh );
+
+closedir $dh;
+
+my $dbfilecount = scalar @dbfiles;
+
+if ( $dbfilecount < 3 ) {
+    push @warning_msgs, "Too few db files found ($dbfilecount)";
+}
+
+# Current Unix time stamp
+my $uts = time;
+
+# Timestamp and name of oldest file
+my $oldest_db_file_ts;
+my $oldest_db_file_name;
+
+my $too_old = 1;
+
+# Check each file
+for my $filename ( @dbfiles ) {
+
+    $filename = "$dirname/$filename";
+
+    # Get mtime of file (ctime didn't match output of ls -la)
+    my $mtime = ( stat $filename )[ 9 ];
+
+    # Determine age of file (in seconds)
+    my $age = $uts - $mtime;
+
+    # Check age (in seconds) of file (4*24*3600 means 4 days)
+    if ( $age < 2*24*3600 ) {
+        $too_old = 0;
+        #push @warning_msgs, "File '$filename' is too old";
+        # TODO: Add strftime of $mtime
+    }
+
+    #print "$filename $mtime $age\n";
+
+    # Remember oldest file
+    if ( ! defined $oldest_db_file_name  or  $mtime < $oldest_db_file_ts ) {
+        $oldest_db_file_ts = $age;
+        $oldest_db_file_name = $filename;
+    }
+
+}
+
+if ( $too_old != 0 ) {
+    push @warning_msgs, "Newest file is older than 48 hours";
+}
+
+if ( defined $oldest_db_file_name  and  defined $oldest_db_file_ts ) {
+    $answer .= "Oldest DB file is $oldest_db_file_name. ";
+    # TODO: Add strftime of oldest_db_file_ts
+}
+
+
+#
+#   OK/Warning/Critical logic
+#
+
+$state = "OK";
+$state = "WARNING"   if  scalar @warning_msgs  > 0;
+$state = "CRITICAL"  if  scalar @critical_msgs > 0;
+
+print "$state: $answer";
+print "| $perfdata"  if  $perfdata;
+print "\n";
+
+print "Critical messages: ", join( ", ", @critical_msgs ), ".\n"  if  scalar @critical_msgs > 0;
+print "Warning messages: ",  join( ", ", @warning_msgs ),  ".\n"  if  scalar @warning_msgs  > 0;
+
+exit $ERRORS{$state};
+
+
+
+
+#
+# Print plugin's usage
+#
+sub print_usage() {
+
+    print "\n";
+    print "Usage: \n";
+    print "$PROGNAME\n";
+    print "Copyright (C) 2014 Bernd Arnold\n";
+    # No official plugin ;-)
+    # support();
+    printf "\n\n";
+
+}
+
+
+
+#
+# Print plugin's help
+#
+sub print_help() {
+
+    # No official plugin ;-)
+    # print_revision( $PROGNAME, '0.1' );
+
+    print_usage();
+
+    print "$PROGNAME plugin for monitoring pacman's \n";
+    print "status of packages that needs updating.\n";
+    print "\nUsage:\n";
+
+    print "   -t (--timeout)    seconds before the plugin times out (default=$TIMEOUT)\n";
+    print "   -V (--version)    plugin version\n";
+    print "   -h (--help)       usage help \n\n";
+
+    # No official plugin ;-)
+    # print_revision( $PROGNAME, '0.1' );
+    
+}
+
+
+
+#
+# Process command line options (arguments)
+#
+sub process_arguments() {
+
+    $status = GetOptions(
+        "version|V"    => \$opt_V,
+        "help|h"       => \$opt_h,
+        "timeout|t=i"  => \$timeout,
+    );
+        
+    if ( $status == 0 ) {
+        print_help();
+        exit $ERRORS{'UNKNOWN'};
+    }
+
+    if ( $opt_V ) {
+        print "$PROGNAME version 0.1\n";
+        print "The plugin comes with ABSOLUTELY NO WARRANTY. You may redistribute\n";
+        print "copies of the plugin under the terms of the GNU General Public License.\n";
+        print "For more information about these matters, see the file named COPYING.\n";
+        exit $ERRORS{'UNKNOWN'};
+    }
+
+    if ( $opt_h ) {
+        print_help();
+        exit $ERRORS{'UNKNOWN'};
+    }
+
+    unless ( defined $timeout ) {
+        $timeout = $TIMEOUT;
+    }
+
+    return $ERRORS{"OK"};
+
+}
+
