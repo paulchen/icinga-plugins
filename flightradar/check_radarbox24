@@ -1,6 +1,6 @@
 #!/bin/bash
 
-DATE=`grep 'Packets sent' /var/log/rbfeeder.log|tail -n 1|sed -e "s/^.//;s/\].*$//"`
+DATE=`grep -a 'Packets sent' /var/log/rbfeeder.log|tail -n 1|sed -e "s/^.//;s/\].*$//"`
 UNIXDATE1=`date -d "$DATE" +%s`
 UNIXDATE2=`date +%s`
 AGE=$((UNIXDATE2 - UNIXDATE1))
