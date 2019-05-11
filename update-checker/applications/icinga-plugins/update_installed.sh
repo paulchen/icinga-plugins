@@ -1,4 +1,4 @@
 #!/bin/bash
 
-../../lib/check_git.sh /opt/icinga/
+../../lib/check_git.sh /opt/icinga-plugins/
 
