@@ -2,7 +2,7 @@
 
 import argparse, sys, json, requests
 
-parser = argparse.ArgumentParser(description='Checks for open notifications for a user on a Nextcloud instance')
+parser = argparse.ArgumentParser(description='Checks for available updates on a Nextcloud instance')
 parser.add_argument('-u', required=True, help='Login username')
 parser.add_argument('-p', required=True, help='Login password')
 parser.add_argument('-a', required=True, help='Web address of Nextcloud instance')
