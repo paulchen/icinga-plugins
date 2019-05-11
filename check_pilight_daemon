@@ -1,0 +1,11 @@
+#!/bin/bash
+
+ERROR=`pilight-send -p elro_800_switch -s 17 -u 8 -f 2>&1 > /dev/null | grep -c 'no pilight ssdp connections found'`
+
+if [ "$ERROR" == "1" ]; then
+	echo 'CRITICAL - Daemon broken'
+	exit 2
+fi
+
+echo 'OK'
+
