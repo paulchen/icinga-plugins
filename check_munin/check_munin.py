@@ -3,6 +3,8 @@
 from time import time
 from subprocess import Popen, PIPE
 from sys import exit
+from argparse import ArgumentParser, FileType
+
 
 def is_ignored(ignorelist, graph, value):
     if '*' in ignorelist.keys():
@@ -22,7 +24,25 @@ def is_ignored(ignorelist, graph, value):
     return False
 
 
-ignorelist = {'*': ['sensor17']}
+def parse_ignorelist(file):
+    ignorelist = {}
+    if file:
+        for line in file:
+            parts = line.strip().split('.')
+            if len(parts) != 2:
+                continue
+            if not parts[0] in ignorelist:
+                ignorelist[parts[0]] = []
+            ignorelist[parts[0]].append(parts[1])
+
+    return ignorelist
+
+
+parser = ArgumentParser(description="Checks for munin plugins that don't return values")
+parser.add_argument('-i', type=FileType('r'), help='File name containing the ignore list')
+args = parser.parse_args()
+
+ignorelist = parse_ignorelist(args.i)
 
 period_start = time() - 600
 
