@@ -43,7 +43,10 @@ parser.add_argument('--help', action='help', help='show this help message and ex
 parser.add_argument('-h', required=True, help='Host name where munin-asyncd is running')
 parser.add_argument('-p', default='22', help='SSH port of the host specified by -h')
 parser.add_argument('-i', type=FileType('r'), help='File name containing the ignore list')
+parser.add_argument('-d', action='store_true', help='Enable debug mode')
 args = parser.parse_args()
+
+debug = args.d
 
 ignorelist = parse_ignorelist(args.i)
 
@@ -68,7 +71,8 @@ for line in result[0].decode('iso-8859-1').split('\n'):
     if len(line) < 2:
         continue
 
-#    print(line)
+    if debug:
+        print(line)
 
     parts = line.split()
     if parts[0] == 'multigraph':
@@ -80,13 +84,19 @@ for line in result[0].decode('iso-8859-1').split('\n'):
     if '.' in parts[0]:
         parts2 = parts[0].split('.')
         if parts2[1] == 'value':
-            if parts2[0] not in values_seen:
-#                print('Value seen: %s %s' % (graph_name, parts2[0]))
+            if parts2[0] not in values_seen[graph_name]:
+                if debug:
+                    print('Value seen: %s %s' % (graph_name, parts2[0]))
                 values_seen[graph_name].append(parts2[0])
         else:
-            if parts2[0] not in graphs_seen:
-#                print('Graph seen: %s %s' % (graph_name, parts2[0]))
+            if parts2[0] not in graphs_seen[graph_name]:
+                if debug:
+                    print('Graph seen: %s %s' % (graph_name, parts2[0]))
                 graphs_seen[graph_name].append(parts2[0])
+
+if debug:
+    print(graphs_seen)
+    print(values_seen)
 
 result = 0
 for graph_name, graphs in graphs_seen.items():
