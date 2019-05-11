@@ -38,7 +38,10 @@ def parse_ignorelist(file):
     return ignorelist
 
 
-parser = ArgumentParser(description="Checks for munin plugins that don't return values")
+parser = ArgumentParser(description="Checks for munin plugins that don't return values", add_help=False)
+parser.add_argument('--help', action='help', help='show this help message and exit')
+parser.add_argument('-h', required=True, help='Host name where munin-asyncd is running')
+parser.add_argument('-p', default='22', help='SSH port of the host specified by -h')
 parser.add_argument('-i', type=FileType('r'), help='File name containing the ignore list')
 args = parser.parse_args()
 
@@ -46,9 +49,13 @@ ignorelist = parse_ignorelist(args.i)
 
 period_start = time() - 600
 
-p = Popen(['ssh', '-p22223', 'munin-async@localhost', '/usr/share/munin/munin-async', '--spoolfetch'], stdin = PIPE, stdout = PIPE)
+p = Popen(['ssh', '-p', args.p, args.h, '-l', 'munin-async', '/usr/share/munin/munin-async', '--spoolfetch'], stdin = PIPE, stdout = PIPE, stderr = PIPE)
 input = 'spoolfetch %s' % period_start
 result = p.communicate(input.encode())
+
+if p.returncode:
+    print('UNKNOWN - SSH returned error code %s' % p.returncode)
+    exit(3)
 
 graph_name = '<none>'
 graphs_seen = {}
