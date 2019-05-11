@@ -4,6 +4,26 @@ from time import time
 from subprocess import Popen, PIPE
 from sys import exit
 
+def is_ignored(ignorelist, graph, value):
+    if '*' in ignorelist.keys():
+        if value in ignorelist['*']:
+            return True
+
+        if '*' in ignorelist['*']:
+            return True
+
+    if graph in ignorelist.keys():
+        if value in ignorelist[graph]:
+            return True
+
+        if '*' in ignorelist[graph]:
+            return True
+
+    return False
+
+
+ignorelist = {'*': ['sensor17']}
+
 period_start = time() - 600
 
 p = Popen(['ssh', '-p22223', 'munin-async@localhost', '/usr/share/munin/munin-async', '--spoolfetch'], stdin = PIPE, stdout = PIPE)
@@ -45,8 +65,7 @@ result = 0
 for graph_name, graphs in graphs_seen.items():
     for graph in graphs:
         if graph not in values_seen[graph_name]:
-            # TODO improve ignore list
-            if graph != 'sensor18':
+            if not is_ignored(ignorelist, graph_name, graph):
                 print('CRITICAL - No value for %s for graph %s ' % (graph, graph_name))
                 result = 2
 
