@@ -50,7 +50,7 @@ debug = args.d
 
 ignorelist = parse_ignorelist(args.i)
 
-period_start = time() - 600
+period_start = time() - 900
 
 p = Popen(['ssh', '-p', args.p, args.h, '-l', 'munin-async', '/usr/share/munin/munin-async', '--spoolfetch'], stdin = PIPE, stdout = PIPE, stderr = PIPE)
 input = 'spoolfetch %s' % period_start
