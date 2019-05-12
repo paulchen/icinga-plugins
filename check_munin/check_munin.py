@@ -75,6 +75,9 @@ for line in result[0].decode('iso-8859-1').split('\n'):
         print(line)
 
     parts = line.split()
+    if len(parts) < 2:
+        continue
+
     if parts[0] == 'multigraph':
         graph_name = parts[1]
         graphs_seen[graph_name] = []
