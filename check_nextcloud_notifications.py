@@ -3,6 +3,10 @@
 import argparse, urllib3, certifi, sys, json
 from http.client import responses
 
+import urllib3.contrib.pyopenssl
+
+urllib3.contrib.pyopenssl.inject_into_urllib3()
+
 parser = argparse.ArgumentParser(description='Checks for open notifications for a user on a Nextcloud instance')
 parser.add_argument('-u', required=True, help='Login username')
 parser.add_argument('-p', required=True, help='Login password')
