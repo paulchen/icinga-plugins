@@ -1,5 +1,5 @@
 #!/bin/bash
 
-../../lib/gitbucket.sh paulchen/icinga-plugins
+../../lib/github_commit.sh paulchen/icinga-plugins
 
 

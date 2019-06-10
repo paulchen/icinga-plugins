@@ -1,5 +1,5 @@
 #!/bin/bash
 
-../../lib/gitbucket.sh paulchen/admin-tools
+../../lib/github_commit.sh paulchen/admin-tools
 
 
