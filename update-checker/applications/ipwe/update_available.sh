@@ -1,5 +1,5 @@
 #!/bin/bash
 
-../../lib/gitbucket.sh smarthome/sensors
+../../lib/github_commit.sh paulchen/sensors
 
 
