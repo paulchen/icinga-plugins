@@ -2,14 +2,32 @@
 DIRECTORY=/var/spool/postfix/virtual/sms_backup@rueckgr.at/
 
 COUNT=`find $DIRECTORY/ -type f -mtime -1.1|wc -l`
-FILENAME=`find $DIRECTORY -mindepth 2 -type f -printf '%T@ %p\n'| sort -n | tail -1 | cut -f2- -d" "`
+
+STATUS=0
+MESSAGE=""
 
 if [ "$COUNT" -eq 0 ]; then
-	echo 2
-else
-	echo 0
+	STATUS=2
+	MESSAGE="No backup file found"
 fi
 
-echo Last SMS backup: `stat $FILENAME|grep Modify|sed -e "s/Modify: //g"`
+FILES=`find $DIRECTORY -mindepth 2 -type f -printf '%T@ %p\n'| sort -n | tail -2 | cut -f2- -d" "`
 
+for FILE in $FILES; do
+	SIZE=`stat --printf="%s" "$FILE"`
+
+	if [ "$SIZE" -lt "100000" ]; then
+		STATUS=2
+		MESSAGE="File $FILE is too small (only $SIZE bytes)"
+		break
+	fi
+done
+
+echo "$STATUS"
+
+if [ "$MESSAGE" == "" ]; then
+	echo Last SMS backup: `stat $FILE|grep Modify|sed -e "s/Modify: //g"`
+else
+	echo "$MESSAGE"
+fi
 
