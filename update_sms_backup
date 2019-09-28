@@ -1,7 +1,7 @@
 #!/bin/bash
 DIRECTORY=/var/spool/postfix/virtual/sms_backup@rueckgr.at/
 
-COUNT=`find $DIRECTORY/ -type f -mtime -1.1|wc -l`
+COUNT=`find $DIRECTORY/ -regextype sed -regex ".*\/[0-9]\{10,12\}\.M.*" -type f -mtime -1.1|wc -l`
 
 STATUS=0
 MESSAGE=""
