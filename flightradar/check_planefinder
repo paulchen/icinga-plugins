@@ -1,7 +1,7 @@
 #!/bin/bash
 
-FILENAME=`ls -tra /var/log/pfclient|tail -n 1`
-DATE=`grep -a 'Successfully sent' "/var/log/pfclient/$FILENAME"| tail -n 1|sed -e "s/ \[.*$//"`
+ls -tral /var/log/pfclient
+DATE=`grep -ah 'Successfully sent' /var/log/pfclient/pfclient-log_*| tail -n 1|sed -e "s/ \[.*$//"`
 UNIXDATE1=`date -u -d "$DATE" +%s`
 UNIXDATE2=`date -u +%s`
 AGE=$((UNIXDATE2 - UNIXDATE1))
