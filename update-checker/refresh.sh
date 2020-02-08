@@ -1,6 +1,7 @@
 #!/bin/bash
 DIRECTORY=`dirname "$0"`
 LOGFILE=/var/log/update-checker.log
+STATUSFILE="$DIRECTORY/update.status"
 
 _log() {
 	DATE=`date --rfc-3339=seconds`
@@ -25,9 +26,23 @@ if [ ! -d applications ]; then
 	exit 1
 fi
 
-cd applications
-
 log "Application startup"
+
+DO_CHECK=0
+if [ ! -e "$STATUSFILE" ]; then
+	log "$STATUSFILE does not exist, performing check"
+	DO_CHECK=1
+elif test "`find $STATUSFILE -mmin +150`"; then
+	log "$STATUSFILE is older than 150 minutes, performing check"
+	DO_CHECK=1
+fi
+
+if [ "$DO_CHECK" -eq "0" ]; then
+	log "Last check was less than 150 minutes ago, exiting"
+	exit 0
+fi
+
+cd applications
 
 STATUS=0
 MESSAGE=""
@@ -138,11 +153,11 @@ log "Execution completed"
 
 cd ..
 
-rm -f update.status
-echo $STATUS >> update.status
+rm -f "$STATUSFILE"
+echo $STATUS >> "$STATUSFILE"
 if [ "$MESSAGE" == "" ]; then
 	MESSAGE="No applications checked"
 fi
 
-echo $MESSAGE >> update.status
+echo $MESSAGE >> "$STATUSFILE"
 
