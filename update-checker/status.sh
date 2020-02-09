@@ -20,8 +20,8 @@ if [ ! -r "$STATUSFILE" ]; then
 fi
 
 # https://stackoverflow.com/questions/2005021/how-can-i-tell-if-a-file-is-older-than-30-minutes-from-bin-sh#2005083
-if test "`find $STATUSFILE -mmin +200`"; then
-	echo "File $STATUSFILE is older than 200 minutes"
+if test "`find $STATUSFILE -mmin +250`"; then
+	echo "File $STATUSFILE is older than 250 minutes"
 	exit 3
 fi
 
