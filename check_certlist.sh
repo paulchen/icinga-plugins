@@ -30,12 +30,7 @@ if [ "$DIRECTORY" == "" ] || [ "$WARNING_DAYS" == "" ]; then
 	usage
 fi
 
-DEBUGFLAG=""
-if [ "$DEBUG" -eq 1 ]; then
-	DEBUGFLAG="-d"
-fi
-
-SCRIPT=`dirname $0`/check_cert.sh
+SCRIPT=/opt/check_ssl_cert/check_ssl_cert
 
 STATUS=0
 for FILE in $DIRECTORY/port_*; do
@@ -49,7 +44,7 @@ for FILE in $DIRECTORY/port_*; do
 		if [ "$DEBUG" -eq 1 ]; then
 			echo Checking $HOST:$PORT...
 		fi	
-		RESULT=`bash $SCRIPT -H $HOST -p $PORT -w $WARNING_DAYS $DEBUGFLAG`
+		RESULT=`bash $SCRIPT -H $HOST -p $PORT -c $WARNING_DAYS`
 		ERRORCODE=$?
 		if [ "$DEBUG" -eq 1 ]; then
 			echo "Error Code: $ERRORCODE, $RESULT"
