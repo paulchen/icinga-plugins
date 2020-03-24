@@ -1,0 +1,11 @@
+if [ "$AGE" -gt "$CRITICAL" ]; then
+	echo "CRITICAL - Last update $AGE seconds ago"
+	exit 2
+elif [ "$AGE" -gt "$WARNING" ]; then
+	echo "WARNING - Last update $AGE seconds ago"
+	exit 1
+else
+	echo "OK - Last update $AGE seconds ago"
+	exit 0
+fi
+
