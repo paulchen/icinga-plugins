@@ -1,6 +1,11 @@
 #!/usr/bin/python3
 
-import json, requests, time, sys, datetime as dt
+import argparse, json, requests, time, sys, datetime as dt
+
+parser = argparse.ArgumentParser(description = 'Check status of fr24feed')
+parser.add_argument('-w', type = int, nargs = 1, required = True, help = 'Warning time in seconds')
+parser.add_argument('-c', type = int, nargs = 1, required = True, help = 'Critical time in seconds')
+args = parser.parse_args()
 
 try:
     resp = requests.get(url='http://localhost:8754/monitor.json')
@@ -14,11 +19,8 @@ last_send_time = int(data['feed_last_ac_sent_time'])
 age = int(time.time()) - last_send_time
 
 hour = dt.datetime.today().hour
-warning = 900
-critical = 1800
-if hour < 6 or hour > 21:
-    warning = 5400
-    critical = 7200
+warning = int(args.w[0])
+critical = int(args.c[0])
 
 print("Last update sent %s seconds ago" % age)
 if age > critical:
