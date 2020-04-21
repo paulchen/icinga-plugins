@@ -16,7 +16,6 @@ log() {
 
 log_error() {
 	_log "ERROR" "$1"
-	echo "$1"
 }
 
 cd "$DIRECTORY"
