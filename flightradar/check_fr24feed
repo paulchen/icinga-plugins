@@ -15,6 +15,10 @@ except requests.exceptions.ConnectionError as e:
 
 data = json.loads(resp.text)
 
+if 'feed_last_ac_sent_time' not in data:
+    print("Unable to check last update timestamp")
+    sys.exit(3)
+
 last_send_time = int(data['feed_last_ac_sent_time'])
 age = int(time.time()) - last_send_time
 
