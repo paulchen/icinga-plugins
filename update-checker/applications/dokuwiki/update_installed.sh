@@ -1,4 +1,4 @@
 #!/bin/bash
 
-cat /home/paulchen/public_html/dokuwiki/VERSION
+grep updateVersion /home/paulchen/public_html/dokuwiki/doku.php|sed -e 's/^[^"]*"//;s/".*$//'
 
