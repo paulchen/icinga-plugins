@@ -20,6 +20,7 @@ PROTOCOL="-4"
 if [ "`echo $1|grep -c ':'`" -ne "0" ]; then
 	PROTOCOL="-6"
 fi
+HOST=$1
 PORT=$2
 
 COMMANDLINE="nc $HOST $PORT -w 8"
