@@ -1,12 +1,12 @@
 #!/bin/bash
 
 usage() {
-	echo "Usage: check_certlist.sh -d <directory> -w <days> [-g]" >&2
+	echo "Usage: check_certlist.sh -d <directory> -w <days> -c <days> [-g]" >&2
 	exit 3
 }
 
 DEBUG=0
-while getopts ":d:w:g" opt; do
+while getopts ":d:w:c:g" opt; do
 	case $opt in
 		d)
 			DIRECTORY=$OPTARG
@@ -14,6 +14,10 @@ while getopts ":d:w:g" opt; do
 
 		w)
 			WARNING_DAYS=$OPTARG
+			;;
+
+		c)
+			CRITICAL_DAYS=$OPTARG
 			;;
 
 		g)
@@ -26,7 +30,7 @@ while getopts ":d:w:g" opt; do
 	esac
 done
 
-if [ "$DIRECTORY" == "" ] || [ "$WARNING_DAYS" == "" ]; then
+if [ "$DIRECTORY" == "" ] || [ "$WARNING_DAYS" == "" ] || [ "$CRITICAL_DAYS" == "" ]; then
 	usage
 fi
 
@@ -44,7 +48,7 @@ for FILE in $DIRECTORY/port_*; do
 		if [ "$DEBUG" -eq 1 ]; then
 			echo Checking $HOST:$PORT...
 		fi	
-		RESULT=`bash $SCRIPT -H $HOST -p $PORT -c $WARNING_DAYS`
+		RESULT=`bash $SCRIPT -H $HOST -p $PORT -w $WARNING_DAYS -c $CRITICAL_DAYS`
 		ERRORCODE=$?
 		if [ "$DEBUG" -eq 1 ]; then
 			echo "Error Code: $ERRORCODE, $RESULT"
