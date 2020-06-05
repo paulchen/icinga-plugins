@@ -6,26 +6,37 @@
 # command[check_ircd_v4_6697]=/opt/icinga/check_irc.sh 127.0.0.1 6697 --ssl
 # command[check_ircd_v6_6697]=/opt/icinga/check_irc.sh ::1 6697 --ssl
 
+ID=$RANDOM
 test_irc() {
-	echo "NICK ircd$RANDOM"
+	echo "NICK ircd$1"
 	echo "USER monitor localhost localhost :"
 
 	sleep 5
 
-	echo "QUIT"
+	echo "QUIT" 2>/dev/null
 }
 
-HOST=$1
+PROTOCOL="-4"
+if [ "`echo $1|grep -c ':'`" -ne "0" ]; then
+	PROTOCOL="-6"
+fi
 PORT=$2
 
-ERROR=0
-SSL=""
+COMMANDLINE="nc $HOST $PORT -w 8"
 if [ "$3" == "--ssl" ]; then
-	SSL="--ssl"
+	if [ "$PROTOCOL" == "-6" ]; then
+		COMMANDLINE="openssl s_client -connect [$HOST]:$PORT"
+	else
+		COMMANDLINE="openssl s_client -connect $HOST:$PORT"
+	fi
 fi
-TEMP=`test_irc | ncat $SSL $HOST $PORT -i 2 -w 8 2> /dev/null | grep 'There are'` || ERROR=1
+echo "$COMMANDLINE"
+test_irc $ID | $COMMANDLINE > /tmp/check_irc_$ID
+cat /tmp/check_irc_$ID
+TEMP=`cat /tmp/check_irc_$ID | grep 'There are'`
+rm -f /tmp/check_irc_$ID
 
-if [ "$ERROR" -ne 0 ]; then
+if [ "$TEMP" == "" ]; then
 	echo "Error while checking status of IRC server"
 	exit 2
 fi
