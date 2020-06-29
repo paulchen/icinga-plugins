@@ -9,7 +9,7 @@
 ID=$RANDOM
 test_irc() {
 	echo "NICK ircd$1"
-	echo "USER monitor localhost localhost :"
+	echo "USER monitor 0 * Monitor"
 
 	sleep 5
 
