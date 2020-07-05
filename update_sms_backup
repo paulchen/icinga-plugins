@@ -11,9 +11,10 @@ if [ "$COUNT" -eq 0 ]; then
 	MESSAGE="No backup file found"
 fi
 
-FILES=`find $DIRECTORY -mindepth 2 -type f -printf '%T@ %p\n'| sort -n | tail -2 | cut -f2- -d" "`
+FILES=`find $DIRECTORY -mindepth 2 -type f \! -name '*dovecot*' -printf '%T@ %p\n'| sort -n | tail -2 | cut -f2- -d" "`
 
 for FILE in $FILES; do
+	echo $FILE
 	SIZE=`stat --printf="%s" "$FILE"`
 
 	if [ "$SIZE" -lt "100000" ]; then
