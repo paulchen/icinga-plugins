@@ -1,4 +1,4 @@
 #!/bin/bash
 
-grep '^\$version' /var/www/postfixadmin/functions.inc.php |sed -e "s/^[^']*'//;s/'.*$//"
+grep "\\$CONF['version']" /var/www/postfixadmin/config.inc.php |sed -e "s/^.*=//;s/^[^']*'//;s/'.*$//"
 
