@@ -4,6 +4,11 @@ usage() {
 	echo "Usage: check_certlist.sh -d <directory> -w <days> -c <days> [-g]" >&2
 	exit 3
 }
+log() {
+	MESSAGE="$1"
+	TIMESTAMP=`date +"%Y-%m-%d %H:%M:%S"`
+	echo "[$TIMESTAMP] $MESSAGE"
+}
 
 DEBUG=0
 while getopts ":d:w:c:g" opt; do
@@ -45,13 +50,15 @@ for FILE in $DIRECTORY/port_*; do
 	PORT=`echo $FILE | sed -e "s/^.*_//g";`
 
 	for HOST in `cat $FILE|grep -v '^#'`; do
+		PARAMS=""
 		if [ "$DEBUG" -eq 1 ]; then
-			echo Checking $HOST:$PORT...
-		fi	
-		RESULT=`bash $SCRIPT -H $HOST -p $PORT -w $WARNING_DAYS -c $CRITICAL_DAYS`
+			log Checking $HOST:$PORT...
+			PARAMS="-v -d"
+		fi
+		RESULT=`bash $SCRIPT -H $HOST -p $PORT -w $WARNING_DAYS -c $CRITICAL_DAYS $PARAMS`
 		ERRORCODE=$?
 		if [ "$DEBUG" -eq 1 ]; then
-			echo "Error Code: $ERRORCODE, $RESULT"
+			log "Error Code: $ERRORCODE, $RESULT"
 		fi	
 
 		if [ "$ERRORCODE" -gt 0 ]; then
