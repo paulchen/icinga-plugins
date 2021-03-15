@@ -23,7 +23,11 @@ with requests.Session() as s:
     s.headers.update({'Accept': 'application/json'})
 
     # request the data
-    r = s.get(url + '/ocs/v2.php/apps/serverinfo/api/v1/info')
+    try:
+        r = s.get(url + '/ocs/v2.php/apps/serverinfo/api/v1/info')
+    except requests.exceptions.ConnectionError as e:
+        print('UNKNOWN: unable to fetch status: %s' % e)
+        sys.exit(3)
 
 # if status code is successful continue
 if r.status_code == 200:
