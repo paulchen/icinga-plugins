@@ -45,22 +45,19 @@ $skipped_tests = array('rest_availability', 'authorization_header');
 
 $failed_tests = array();
 $successful_tests = array();
-foreach ( $tests['direct'] as $name => $test ) {
+foreach ($tests['direct'] as $name => $test) {
 	if (in_array($name, $skipped_tests)) {
 		continue;
 	}
-	if ( is_string( $test['test'] ) ) {
-		$test_function = sprintf(
-			'get_test_%s',
-			$test['test']
-		);
+	if (is_string($test['test'])) {
+		$test_function = sprintf('get_test_%s', $test['test']);
 
-		if ( method_exists( $health, $test_function ) && is_callable( array( $health, $test_function ) ) ) {
-			$result = $method->invoke( $health, array( $health, $test_function ) );
+		if (method_exists($health, $test_function) && is_callable(array($health, $test_function))) {
+			$result = $method->invoke($health, array($health, $test_function));
 		}
 	}
-	else if ( is_callable( $test['test'] ) ) {
-		$result = $method->invoke( $health, array( $test['test'] ) );
+	else if (is_callable($test['test'])) {
+		$result = $method->invoke($health, array($test['test']));
 	}
 
 	if($result['status'] != 'good') {
@@ -71,11 +68,11 @@ foreach ( $tests['direct'] as $name => $test ) {
 	}
 }
 
-foreach ( $tests['async'] as $name => $test ) {
+foreach ($tests['async'] as $name => $test) {
 	if (in_array($name, $skipped_tests)) {
 		continue;
 	}
-	if ( is_string( $test['test'] ) ) {
+	if (is_string($test['test'])) {
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_URL, $test['test']);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
