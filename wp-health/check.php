@@ -1,8 +1,14 @@
+#!/usr/bin/php
 <?php
 
-chdir(dirname(__FILE__));
+$wp_root = getenv('WP_ROOT');
+$wp_username = getenv('WP_USERNAME');
+$wp_password = getenv('WP_PASSWORD');
 
-require_once('config.php');
+if(!$wp_root || !$wp_username || !$wp_password) {
+	echo "UNKNOWN: missing environment variable(s)\n";
+	die(3);
+}
 
 $ch = curl_init();
 curl_setopt($ch, CURLOPT_URL, "$wp_root/wp-health.php");

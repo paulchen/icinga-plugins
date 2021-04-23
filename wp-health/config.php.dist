@@ -1,6 +1,0 @@
-<?php
-
-$wp_root = 'https://example.com';
-$wp_username = '';
-$wp_password = '';
-
