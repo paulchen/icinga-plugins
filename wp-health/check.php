@@ -16,7 +16,8 @@ curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($ch, CURLOPT_USERPWD, "$wp_username:$wp_password");
 $response = curl_exec($ch);
 if(!$response) {
-	echo "UNKNOWN: invalid response\n";
+	$error = curl_error($ch);
+	echo "UNKNOWN: invalid response: $error\n";
 	die(3);
 }
 $status_code = curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
@@ -37,7 +38,8 @@ $failed = count($result->tests->failed);
 $total = $successful + $failed;
 
 if($failed > 0) {
-	echo "CRITICAL: $failed/$total test(s) failed\n";
+	$failed_tests = implode(', ', $result->tests->failed);
+	echo "CRITICAL: $failed/$total test(s) failed: $failed_tests\n";
 	die(2);
 }
 
