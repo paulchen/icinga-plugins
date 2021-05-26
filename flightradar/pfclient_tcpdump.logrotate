@@ -1,0 +1,12 @@
+/var/log/pfclient/tcpdump.log {
+        weekly
+        missingok
+        rotate 5
+        compress
+        copytruncate
+        create 640 root root
+        postrotate
+                systemctl restart pfclient_tcpdump.service
+        endscript
+}
+

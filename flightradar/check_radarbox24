@@ -1,12 +1,42 @@
 #!/bin/bash
 
-DIRECTORY=`dirname "$0"`
-. "$DIRECTORY/parse_args"
+usage() {
+	echo "Usage: $0 -w <seconds> -c <seconds>" 1>&2
+	exit 1
+
+}
+
+WARNING=0
+CRITICAL=0
+while getopts "w:c:" o; do
+	case "${o}" in
+		w)
+			WARNING=${OPTARG}
+			;;
+		c)
+			CRITICAL=${OPTARG}
+			;;
+		*)
+			usage
+	esac
+done
+if [ "$WARNING" == "0" ] || [ "$CRITICAL" == "0" ]; then
+	usage
+fi
 
 DATE=`grep -a 'Packets sent' /var/log/rbfeeder.log|tail -n 1|sed -e "s/^.//;s/\].*$//"`
 UNIXDATE1=`date -d "$DATE" +%s`
 UNIXDATE2=`date +%s`
 AGE=$((UNIXDATE2 - UNIXDATE1))
 
-. "$DIRECTORY/print_status"
+if [ "$AGE" -gt "$CRITICAL" ]; then
+	echo "CRITICAL - Last update $AGE seconds ago"
+	exit 2
+elif [ "$AGE" -gt "$WARNING" ]; then
+	echo "WARNING - Last update $AGE seconds ago"
+	exit 1
+else
+	echo "OK - Last update $AGE seconds ago"
+	exit 0
+fi
 

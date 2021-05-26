@@ -1,13 +1,21 @@
 #!/bin/bash
 
-DIRECTORY=`dirname "$0"`
-. "$DIRECTORY/parse_args"
+LOGFILE=/var/log/pfclient/tcpdump.log
 
-ls -tral /var/log/pfclient
-DATE=`grep -ah 'Successfully sent' /var/log/pfclient/pfclient-log_*| tail -n 1|sed -e "s/ \[.*$//"`
-UNIXDATE1=`date -u -d "$DATE" +%s`
-UNIXDATE2=`date -u +%s`
-AGE=$((UNIXDATE2 - UNIXDATE1))
+FILEAGE=`/usr/lib/nagios/plugins/check_file_age -w 600 -c 900 -f "$LOGFILE"`
+EXITCODE=$?
 
-. "$DIRECTORY/print_status"
+if [ "$EXITCODE" -ne "0" ]; then
+    echo $FILEAGE|sed -e 's/ |.*//'
+    exit $EXITCODE
+fi
+
+COUNT=`tail -n 20 "$LOGFILE" | grep -c 'HTTP/1.1 200 OK'`
+
+if [ "$COUNT" -eq "0" ]; then
+	echo "CRITICAL - No update sent to Planefinder recently"
+	exit 2
+fi
+
+echo "OK - Update sent to Planefinder recently"
 

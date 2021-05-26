@@ -1,0 +1,12 @@
+[Unit]
+Description=tcpdump
+After=network.target
+
+[Service]
+User=root
+ExecStart=/opt/icinga-plugins/flightradar/pfclient_tcpdump.sh
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+
