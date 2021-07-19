@@ -40,6 +40,9 @@ if [ "$DIRECTORY" == "" ] || [ "$WARNING_DAYS" == "" ] || [ "$CRITICAL_DAYS" == 
 fi
 
 SCRIPT=/opt/check_ssl_cert/check_ssl_cert
+TMPDIR=/tmp/check_ssl_cert
+
+mkdir -p "$TMPDIR"
 
 STATUS=0
 for FILE in $DIRECTORY/port_*; do
@@ -55,7 +58,7 @@ for FILE in $DIRECTORY/port_*; do
 			log Checking $HOST:$PORT...
 			PARAMS="-v -d"
 		fi
-		RESULT=`bash $SCRIPT -H $HOST -p $PORT -w $WARNING_DAYS -c $CRITICAL_DAYS $PARAMS`
+		RESULT=`bash $SCRIPT -H $HOST -p $PORT -w $WARNING_DAYS -c $CRITICAL_DAYS --temp "$TMPDIR" $PARAMS`
 		ERRORCODE=$?
 		if [ "$DEBUG" -eq 1 ]; then
 			log "Error Code: $ERRORCODE, $RESULT"
