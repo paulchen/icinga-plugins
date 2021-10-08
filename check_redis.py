@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 
 #
 # LICENSE: MIT
@@ -44,10 +44,10 @@ def get_info_unix(unix, timeout):
     return get_info(s)
 
 def get_info(s):
-    s.send("*1\r\n$4\r\ninfo\r\n")
+    s.send(b"*1\r\n$4\r\ninfo\r\n")
     buf = ""
     while '\r\n\r\n' not in buf:
-        buf += s.recv(1024)
+        buf += s.recv(1024).decode('utf-8')
     s.close()
     return dict(x.split(':', 1) for x in buf.split('\r\n') if ':' in x)
 
@@ -69,24 +69,24 @@ def main():
     if not options.crit_memory:
         parser.error("Critical level required")
 
-    try:
-        if options.unix:
-            info = get_info_unix(options.unix, timeout=options.timeout / 1000.0)
-        else:
-            info = get_info_host_port(options.server, int(options.port), timeout=options.timeout / 1000.0)
-    except socket.error, exc:
-        print "CRITICAL: Error connecting or getting INFO from redis %s:%s: %s" % (options.server, options.port, exc)
-        sys.exit(EXIT_CRITICAL)
+#    try:
+    if options.unix:
+        info = get_info_unix(options.unix, timeout=options.timeout / 1000.0)
+    else:
+        info = get_info_host_port(options.server, int(options.port), timeout=options.timeout / 1000.0)
+#    except socket.error as exc:
+#        print("CRITICAL: Error connecting or getting INFO from redis %s:%s: %s" % (options.server, options.port, exc))
+#        sys.exit(EXIT_CRITICAL)
 
     memory = int(info.get("used_memory_rss") or info["used_memory"]) / (1024*1024)
     if memory > options.crit_memory:
-        print "CRITICAL: Redis memory usage is %dMB (threshold %dMB)" % (memory, options.crit_memory)
+        print("CRITICAL: Redis memory usage is %dMB (threshold %dMB)" % (memory, options.crit_memory))
         sys.exit(EXIT_CRITICAL)
     elif memory > options.warn_memory:
-        print "WARN: Redis memory usage is %dMB (threshold %dMB)" % (memory, options.warn_memory)
+        print("WARN: Redis memory usage is %dMB (threshold %dMB)" % (memory, options.warn_memory))
         sys.exit(EXIT_WARN)
 
-    print "OK: Redis memory usage is %dMB" % memory
+    print("OK: Redis memory usage is %dMB" % memory)
     sys.exit(EXIT_OK)
 
 if __name__ == "__main__":
