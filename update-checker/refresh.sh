@@ -118,13 +118,13 @@ for DIR in */; do
 	rm -f /tmp/update_installed.log
 
 	if [ "$AVAILABLE" == "$INSTALLED" ]; then
-		APP_MESSAGE="$DIR - OK ($AVAILABLE);"
+		APP_MESSAGE="$DIR - OK ($AVAILABLE)"
 	else
-		APP_MESSAGE="$DIR - update available ($INSTALLED -> $AVAILABLE);"
+		APP_MESSAGE="$DIR - update available ($INSTALLED -> $AVAILABLE)"
 		STATUS=2
 	fi
 
-	MESSAGE="$MESSAGE $APP_MESSAGE"
+	MESSAGE="$MESSAGE\n$APP_MESSAGE"
 
 	log "Resulting message: $APP_MESSAGE"
 	log "Processing directory $DIR completed"
@@ -138,10 +138,10 @@ log "Execution completed"
 cd ..
 
 rm -f update.status
-echo $STATUS >> update.status
+echo -n $STATUS >> update.status
 if [ "$MESSAGE" == "" ]; then
 	MESSAGE="No applications checked"
 fi
 
-echo $MESSAGE >> update.status
+echo -e $MESSAGE >> update.status
 

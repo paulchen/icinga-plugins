@@ -27,5 +27,6 @@ fi
 
 readarray status < $STATUSFILE
 
-echo ${status[1]}
+tail -n +2 < $STATUSFILE
+
 exit ${status[0]}
