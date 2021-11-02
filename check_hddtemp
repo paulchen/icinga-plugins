@@ -38,7 +38,12 @@ DEVICE=$2
 WARNING=$4
 CRITICAL=$6
 
-VALUE=`/usr/sbin/hddtemp -n "$DEVICE"`
+ERROR=0
+VALUE=`/usr/sbin/hddtemp -n "$DEVICE" || ERROR=1`
+if [ "$ERROR" -ne "0" ]; then
+	echo "$DEVICE unknown - error calling hddtemp"
+	exit 3
+fi
 if [ $VALUE -lt $4 ]; then
 	echo $DEVICE ok - $VALUE degrees
 	exit 0
