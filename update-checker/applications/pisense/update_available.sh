@@ -1,5 +1,5 @@
 #!/bin/bash
 
-../../lib/github_commit.sh perception101/pisense
+../../lib/github_commit.sh paulchen/pisense
 
 
