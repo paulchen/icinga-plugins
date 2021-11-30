@@ -1,3 +1,3 @@
 #!/bin/bash
-wget https://www.eq-3.de/service/downloads.html -q -O - | grep 'CCU3 Firmware'  |head -n 1|sed -e "s/^.*CCU3 Firmware //;s/<.*//"
+wget https://homematic-ip.com/de/produkt/smart-home-zentrale-ccu3/downloads -q -O - | grep 'Aktuelle Version' | sed -e "s/.*Aktuelle Version //;s/<.*//"
 
