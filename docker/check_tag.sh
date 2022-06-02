@@ -10,8 +10,8 @@ if [ "$1" == "" ]; then
 fi
 
 ERROR=0
+LOCAL=`docker inspect "$1" --format '{{.Id}}' 2> /dev/null` || ERROR=1
 
-LOCAL=`docker inspect "$1" --format '{{.Id}}' || ERROR=1`
 if [ "$ERROR" -eq "1" ]; then
 	echo "$1: error checking local version"
 	exit 3
