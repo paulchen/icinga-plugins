@@ -2,7 +2,7 @@
 
 # for sudo to work you need to add a line in /etc/sudoers like:
 # 
-# icinga ALL=(ALL:ALL) NOPASSWD: /usr/sbin/munin-run-custom
+# icinga ALL=(ALL:ALL) NOPASSWD: /usr/sbin/munin-run
 
 cd /etc/munin/plugins
 error=0
