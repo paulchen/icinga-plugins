@@ -8,7 +8,7 @@ cd /etc/munin/plugins
 error=0
 for plugin in *; do
 	plugin_error=0
-	sudo munin-run --ignore-systemd-properties --debug "$plugin" > /dev/null 2>&1 || plugin_error=1
+	sudo munin-run --ignore-systemd-properties "$plugin" > /dev/null 2>&1 || plugin_error=1
 	if [ "$plugin_error" -eq "1" ]; then
 		error=1
 		echo "Broken plugin: $plugin"
