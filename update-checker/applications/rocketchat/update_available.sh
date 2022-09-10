@@ -1,4 +1,4 @@
 #!/bin/bash
 
-../../lib/dockerhub.py rocketchat/rocket.chat
+../../lib/dockerhub.py rocketchat rocket.chat
 

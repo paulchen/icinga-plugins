@@ -3,7 +3,10 @@
 import requests, re, sys
 from distutils.version import LooseVersion
 
-url = 'https://registry.hub.docker.com/v1/repositories/' + sys.argv[1] + '/tags'
+namespace = sys.argv[1]
+repository = sys.argv[2]
+
+url = f'https://registry.hub.docker.com/v2/namespaces/{namespace}/repositories/{repository}/tags'
 
 response = requests.get(url)
 if response.status_code >= 300:
@@ -13,10 +16,10 @@ if response.status_code >= 300:
 tags = response.json()
 
 regex = re.compile('^[0-9]+\.[0-9]+\.[0-9]+$')
-names = map(lambda x: x['name'], tags)
+names = map(lambda x: x['name'], tags['results'])
 filtered_names = filter(regex.match, names)
-if len(sys.argv) > 2:
-    filtered_names = [n for n in filtered_names if n.startswith(sys.argv[2])]
+if len(sys.argv) > 3:
+    filtered_names = [n for n in filtered_names if n.startswith(sys.argv[3])]
 
 versions = [LooseVersion(v) for v in filtered_names]
 versions.sort()
