@@ -6,7 +6,7 @@ from distutils.version import LooseVersion
 namespace = sys.argv[1]
 repository = sys.argv[2]
 
-url = f'https://registry.hub.docker.com/v2/namespaces/{namespace}/repositories/{repository}/tags'
+url = f'https://registry.hub.docker.com/v2/namespaces/{namespace}/repositories/{repository}/tags?page_size=20'
 
 response = requests.get(url)
 if response.status_code >= 300:
