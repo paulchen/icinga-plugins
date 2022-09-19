@@ -32,9 +32,12 @@ with requests.Session() as s:
 # if status code is successful continue
 if r.status_code == 200:
     api_response = r.json()
+#    print(api_response)
     num_updates_available = api_response['ocs']['data']['nextcloud']['system']['apps']['num_updates_available']
     if num_updates_available > 0:
-        print('WARNING: %s updates available' % num_updates_available)
+        apps_with_updates = api_response['ocs']['data']['nextcloud']['system']['apps']['app_updates']
+        app_list = ', '.join(apps_with_updates.keys())
+        print('WARNING: %s updates available - %s' % (num_updates_available, app_list))
         sys.exit(1)
 
     print('OK: no updates available')
