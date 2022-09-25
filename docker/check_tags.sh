@@ -9,6 +9,8 @@ if [ "$1" == "" ]; then
 	usage
 fi
 
+rm -f /tmp/check_docker_tags
+
 if [ "$1" == "-" ]; then
 	TAGS=`cat|grep '^- '|sed -e 's/- //'`
 else
@@ -19,7 +21,7 @@ CHECK_SCRIPT="$DIRECTORY/check_tag.sh"
 
 STATE=0
 for TAG in $TAGS; do
-	"$CHECK_SCRIPT" "$TAG"
+	"$CHECK_SCRIPT" "$TAG" >> /tmp/check_docker_tags
 	RESULT=$?
 
 	if [ "$RESULT" -gt "$STATE" ]; then
@@ -27,5 +29,8 @@ for TAG in $TAGS; do
 	fi
 done
 
+echo $STATE
+cat /tmp/check_docker_tags
+rm -f /tmp/check_docker_tags
 exit $STATE
 
