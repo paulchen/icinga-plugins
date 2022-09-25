@@ -10,9 +10,9 @@ if [ "$1" == "" ]; then
 fi
 
 if [ "$1" == "-" ]; then
-	TAGS=`cat`
+	TAGS=`cat|grep '^- '|sed -e 's/- //'`
 else
-	TAGS=`cat $1`
+	TAGS=`cat $1|grep '^- '|sed -e 's/- //'`
 fi
 DIRECTORY=`dirname $0`
 CHECK_SCRIPT="$DIRECTORY/check_tag.sh"
