@@ -20,13 +20,26 @@ if [ ! -r "$1" ]; then
     exit 3
 fi
 
+MINUTES=1500
+if [ "$2" != "" ]; then
+	MINUTES=$2
+fi
+
 # https://stackoverflow.com/questions/2005021/how-can-i-tell-if-a-file-is-older-than-30-minutes-from-bin-sh#2005083
-if test "`find $1 -mmin +1500`"; then
-	echo "File $1 is older than 1500 minutes"
+if test "`find $1 -mmin +$MINUTES`"; then
+	echo "File $1 is older than $MINUTES minutes"
 	exit 3
 fi
 
 readarray status < $1
 
+# https://unix.stackexchange.com/questions/68322/how-can-i-remove-an-element-from-an-array-completely
+# https://stackoverflow.com/questions/8880603/loop-through-an-array-of-strings-in-bash
+for i in "${status[@]:1}"
+do
+	echo -n "$i"
+done
+
 echo ${status[1]}
 exit ${status[0]}
+
