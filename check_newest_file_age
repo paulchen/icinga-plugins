@@ -304,6 +304,7 @@ do
             OUTPUT="$OUTPUT ${dir}: ${FILE_AGE_UNITS} ${abbreviation}"
           fi
         fi
+	CHECKED_FILE=$next_filepath
         break
       fi
     done
@@ -343,6 +344,10 @@ exit_message="${exit_message}: ${OK_FILE_COUNT}/${DIR_COUNT}"
 
 if [ "$OUTPUT" ]; then
   exit_message="${exit_message} --${OUTPUT}"
+fi
+
+if [ "$CHECKED_FILE" ]; then
+  exit_message="${exit_message} (checked file: ${CHECKED_FILE} )"
 fi
 
 echo "$exit_message"
