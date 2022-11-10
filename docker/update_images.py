@@ -41,7 +41,7 @@ for application in to_update:
         subprocess.call([update_script])
         print(f'Rebuilding {application} finished')
     else:
-        print(f'Rebuilding {application} cannot be rebuilt as script {update_script} cannot be found')
+        print(f'{application} cannot be rebuilt as script {update_script} cannot be found')
 
 print(f'Running check_tags.sh')
 # https://stackoverflow.com/questions/10177587/redirecting-the-output-of-shell-script-executing-through-python
