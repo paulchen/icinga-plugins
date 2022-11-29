@@ -23,7 +23,7 @@ if(!$response) {
 $status_code = curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
 curl_close($ch);
 if($status_code < 200 || $status_code > 299) {
-	echo "UNKNOWN: http status code $status returned\n";
+	echo "UNKNOWN: http status code $status_code returned\n";
 	die(3);
 }
 
