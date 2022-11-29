@@ -9,18 +9,22 @@ repository = sys.argv[2]
 url = f'https://registry.hub.docker.com/v2/namespaces/{namespace}/repositories/{repository}/tags?page_size=10'
 
 
-url_latest = url + '&name=latest'
-response = requests.get(url)
-if response.status_code >= 300:
-    print(f"Error fetching data from {url}; status code: {response.status_code}; contents:\n{response.text}")
-    sys.exit(1)
+if len(sys.argv) == 3:
+    url_latest = url + '&name=latest'
+    response = requests.get(url_latest)
+    if response.status_code >= 300:
+        print(f"Error fetching data from {url}; status code: {response.status_code}; contents:\n{response.text}")
+        sys.exit(1)
 
-tags = response.json()
-latest_tags = [x for x in tags['results'] if x['name'] == 'latest']
-if len(latest_tags) == 0:
-    latest_tag = None
+    tags = response.json()
+    latest_tags = [x for x in tags['results'] if x['name'] == 'latest']
+    if len(latest_tags) == 0:
+        latest_tag = None
+    else:
+        latest_tag = latest_tags[0]['digest']
 else:
-    latest_tag = latest_tags[0]['digest']
+    url = url + '&name=' + sys.argv[3]
+    latest_tag = None
 
 
 while True:
