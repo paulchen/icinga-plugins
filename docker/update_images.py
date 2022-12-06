@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 
 from pathlib import Path
-import subprocess, yaml
+import subprocess, yaml, time
+
+start_time = time.perf_counter()
 
 directory = Path(__file__).resolve().parent
 check_tags_script = Path(__file__).resolve().parent / 'check_tags.sh'
@@ -49,4 +51,10 @@ command = [check_tags_script, images_file]
 with open(status_file, 'w') as output:
     subprocess.call(command, stdout=output, shell=False)
 
+end_time = time.perf_counter()
+total_time = end_time - start_time
+
+print('Elapsed time: %s seconds' % (round(total_time, 2)))
+
 print(f'Execution completed')
+
