@@ -34,7 +34,12 @@ if status != 200:
 json = json.loads(response.data.decode('utf-8'))
 data = json['ocs']['data']
 if len(data) > 0:
-    print('WARNING: %s notifications' % (len(data), ))
+    if len(data) > 1:
+        print('WARNING: %s notifications:' % (len(data), ))
+    else:
+        print('WARNING: 1 notification:')
+    for notification in data:
+        print(f" - {notification['subject']}")
     sys.exit(1)
 
 print('OK: No notifications')
