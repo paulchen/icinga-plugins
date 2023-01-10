@@ -1,3 +1,3 @@
 #!/bin/bash
-wget https://homematic-ip.com/de/produkt/smart-home-zentrale-ccu3/downloads -q -O - | grep 'Aktuelle Version' | sed -e "s/.*Aktuelle Version //;s/<.*//"
+wget https://homematic-ip.com/de/produkt/smart-home-zentrale-ccu3/downloads -q -O - | grep 'Firmware Smart Home Zentrale CCU3' | sed -e 's/<[^>]*>//g' | sed -e 's/^.*, //' | head -n 1
 
