@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 
 from pathlib import Path
-import subprocess, yaml, time
+import subprocess, yaml, time, functools
+
+# https://stackoverflow.com/questions/230751/how-can-i-flush-the-output-of-the-print-function
+print = functools.partial(print, flush=True)
 
 start_time = time.perf_counter()
 
