@@ -19,9 +19,9 @@ fi
 
 CONTAINS_SLASH=`echo "$1" | grep -c '/'`
 if [ "$CONTAINS_SLASH" -eq "0" ]; then
-	REMOTE=`docker manifest inspect "$1" -v | jq -r '.[0].SchemaV2Manifest.config.digest' || ERROR=1`
+	REMOTE=`docker manifest inspect "$1" -v | jq -r '.[0] | if has("OCIManifest") then .OCIManifest else .SchemaV2Manifest end | .config.digest' || ERROR=1`
 else
-	REMOTE=`docker manifest inspect "$1" -v | jq -r '.SchemaV2Manifest.config.digest' || ERROR=1`
+	REMOTE=`docker manifest inspect "$1" -v | jq -r 'if has("OCIManifest") then .OCIManifest else .SchemaV2Manifest end | .config.digest' || ERROR=1`
 fi
 
 if [ "$ERROR" -eq "1" ]; then
