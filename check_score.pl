@@ -41,7 +41,7 @@ my $threshold = Monitoring::Plugin::Threshold->set_thresholds(
 
 alarm $options->timeout;
 
-my $url = sprintf("http://www.pool.ntp.org/scores/%s/json?limit=1",
+my $url = sprintf("http://www.pool.ntp.org/scores/%s/json?limit=1&monitor=24",
                   $options->ip);
 my $json = get($url);
 
