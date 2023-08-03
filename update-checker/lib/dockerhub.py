@@ -54,7 +54,7 @@ while True:
     tags = response.json()
 
     if latest_tag != None:
-        filtered_tags = [x for x in tags['results'] if x['digest'] == latest_tag and x['name'] != 'latest' and has_image(x, os, arch, variant)]
+        filtered_tags = [x for x in tags['results'] if x['digest'] == latest_tag and x['name'] != 'latest' and not x['name'].startswith('sha-') and has_image(x, os, arch, variant)]
         if len(filtered_tags) == 1:
             print(filtered_tags[0]['name'])
             break
@@ -65,7 +65,7 @@ while True:
     regex = re.compile('^[0-9]+\.[0-9]+\.[0-9]+$')
     names = [x['name'] for x in tags['results'] if has_image(x, os, arch, variant)]
     if len(names) == 0:
-        printf('No tags found in response from API')
+        print('No tags found in response from API')
         sys.exit(1)
 
     filtered_names = filter(regex.match, names)
