@@ -52,6 +52,9 @@ while True:
         sys.exit(1)
 
     tags = response.json()
+    if len(tags) == 0:
+        print('No tags found in response from API')
+        sys.exit(1)
 
     if latest_tag != None:
         filtered_tags = [x for x in tags['results'] if x['digest'] == latest_tag and x['name'] != 'latest' and not x['name'].startswith('sha-') and has_image(x, os, arch, variant)]
@@ -62,12 +65,9 @@ while True:
         url = tags['next']
         continue
 
-    regex = re.compile('^[0-9]+\.[0-9]+\.[0-9]+$')
     names = [x['name'] for x in tags['results'] if has_image(x, os, arch, variant)]
-    if len(names) == 0:
-        print('No tags found in response from API')
-        sys.exit(1)
 
+    regex = re.compile('^[0-9]+\.[0-9]+\.[0-9]+$')
     filtered_names = filter(regex.match, names)
     if len(sys.argv) > 3:
         filtered_names = [n for n in filtered_names if n.startswith(sys.argv[3])]
