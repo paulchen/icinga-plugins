@@ -12,10 +12,10 @@
   applications:
   - rocketchat-archive
   - kotlin-rocket-bot
-- image: ubuntu:kinetic
+- image: ubuntu:lunar
   applications:
   - docker-munin-mongodb
-- image: debian:bullseye-slim
+- image: debian:bookworm-slim
   applications:
   - rocketchat-archive
   - kotlin-rocket-bot

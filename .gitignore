@@ -1,2 +1,3 @@
 cert_checklist_*/*
 docker/status
+docker/images.yaml
