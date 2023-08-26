@@ -35,7 +35,7 @@ $options->arg(
     spec => "monitor=s",
     help => "Name of the monitor to be checked",
     required => 0,
-    default => "recentmedian",
+    default => "all",
 );
                                         
 $options->getopts();
@@ -55,25 +55,34 @@ $plugin->plugin_die("Unable to load monitoring data: $!") unless defined $json;
 
 my $monitor_name = $options->monitor;
 my $result = decode_json($json);
-my $score;
+my $score = 0;
+my $monitor_count = 0;
 my $monitors = $result->{'monitors'};
 foreach my $item (@$monitors) {
-	if ($item->{'name'} eq $monitor_name) {
+	if ($monitor_name eq 'all' and $item->{'status'} eq 'active') {
+		$score += $item->{'score'};
+		$monitor_count++;
+	}
+	elsif ($item->{'name'} eq $monitor_name) {
 		$score = $item->{'score'};
+		$monitor_count = 1;
 		last;
 	}
 }
-if (not length $score) {
+if ($monitor_count eq 0) {
 	$plugin->plugin_die("No score for monitor $monitor_name found");
+}
+if ($monitor_name eq 'all') {
+	$score /= $monitor_count;
 }
 
 my $code = $threshold->get_status($score);
 
 $plugin->add_perfdata(
   label => "score",
-  value => $result->{'history'}->[0]->{'score'},
+  value => $score,
   uom => "",
   threshold => $threshold
 );
 
-$plugin->plugin_exit($code, "current score: " . $result->{'history'}->[0]->{'score'});
+$plugin->plugin_exit($code, "current score: $score");
