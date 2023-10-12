@@ -23,20 +23,25 @@ print(f'Data read from configuration file: {images}')
 error = False
 to_update = set()
 for image in images:
-    command = [check_tag_script, image['image']]
-    print(f'Executing {command}')
-    proc = subprocess.run(command, capture_output=True, shell=False)
-    print(proc.stdout)
-    if proc.returncode == 2:
-        print(f"Base image {image['image']} found to be out of date")
+    if len(sys.argv) == 2 and sys.argv[1] == '-f':
         for application in image['applications']:
-            print(f'Adding {application} to the list of applications that need to be updated')
+            print(f'Argument -f given, therefore adding {application} to the list of applications that need to be updated')
             to_update.add(application)
-    elif proc.returncode > 0:
-        print(f"Error checking whether {image['image']} is up to date")
-        error = True
     else:
-        print(f"Base image {image['image']} is up to date")
+        command = [check_tag_script, image['image']]
+        print(f'Executing {command}')
+        proc = subprocess.run(command, capture_output=True, shell=False)
+        print(proc.stdout)
+        if proc.returncode == 2:
+            print(f"Base image {image['image']} found to be out of date")
+            for application in image['applications']:
+                print(f'Adding {application} to the list of applications that need to be updated')
+                to_update.add(application)
+        elif proc.returncode > 0:
+            print(f"Error checking whether {image['image']} is up to date")
+            error = True
+        else:
+            print(f"Base image {image['image']} is up to date")
 
 if error:
     print('At least one base image could not be checked')
@@ -49,7 +54,9 @@ for application in to_update:
 
     update_script = Path(__file__).resolve().parent / 'applications' / f'update-{application}.sh'
     if update_script.exists():
-        returncode = subprocess.call([update_script])
+        command = [update_script]
+        command.extend(sys.argv[1:])
+        returncode = subprocess.call(command)
         if returncode > 0:
             print(f'Error rebuilding {application}')
             error = True
