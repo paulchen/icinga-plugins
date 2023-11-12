@@ -30,6 +30,7 @@ log "Application startup"
 
 STATUS=0
 MESSAGE=""
+TOTAL_UPDATES=0
 for DIR in */; do
 	# remove trailing slash
 	DIR="${DIR/\//}"
@@ -122,6 +123,7 @@ for DIR in */; do
 	else
 		APP_MESSAGE="$DIR - update available ($INSTALLED -> $AVAILABLE)"
 		STATUS=2
+		TOTAL_UPDATES=$((TOTAL_UPDATES+1))
 	fi
 
 	MESSAGE="$MESSAGE\n$APP_MESSAGE"
@@ -138,7 +140,14 @@ log "Execution completed"
 cd ..
 
 rm -f update.status
-echo -n $STATUS >> update.status
+echo $STATUS >> update.status
+if [ "$TOTAL_UPDATES" -eq "0" ]; then
+	echo -n "No update available" >> update.status
+elif [ "$TOTAL_UPDATES" -eq "1" ]; then
+	echo -n "1 update available" >> update.status
+else
+	echo -n "$TOTAL_UPDATES updates available" >> update.status
+fi
 if [ "$MESSAGE" == "" ]; then
 	MESSAGE="No applications checked"
 fi
