@@ -12,7 +12,7 @@ fi
 rm -f /tmp/check_docker_tags
 
 if [ "$1" == "-" ]; then
-	TAGS=`cat|grep '^- image: '|sed -e 's/- image: //'`
+	TAGS=`cat`
 else
 	TAGS=`cat $1|grep '^- image: '|sed -e 's/- image: //'`
 fi
@@ -28,6 +28,11 @@ for TAG in $TAGS; do
 		STATE="$RESULT"
 	fi
 done
+
+if [ ! -e /tmp/check_docker_tags ]; then
+	echo 'No image to check'
+	exit 3
+fi
 
 echo $STATE
 cat /tmp/check_docker_tags

@@ -17,12 +17,7 @@ if [ "$ERROR" -eq "1" ]; then
 	exit 3
 fi
 
-CONTAINS_SLASH=`echo "$1" | grep -c '/'`
-if [ "$CONTAINS_SLASH" -eq "0" ]; then
-	REMOTE=`docker manifest inspect "$1" -v | jq -r '.[0] | if has("OCIManifest") then .OCIManifest else .SchemaV2Manifest end | .config.digest' || ERROR=1`
-else
-	REMOTE=`docker manifest inspect "$1" -v | jq -r 'if has("OCIManifest") then .OCIManifest else .SchemaV2Manifest end | .config.digest' || ERROR=1`
-fi
+REMOTE=`docker manifest inspect "$1" -v | jq -r 'if type=="array" then .[0] else . end | if has("OCIManifest") then .OCIManifest else .SchemaV2Manifest end | .config.digest' || ERROR=1`
 
 if [ "$ERROR" -eq "1" ]; then
 	echo "$1: error checking version on DockerHub"
