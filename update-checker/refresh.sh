@@ -118,6 +118,9 @@ for DIR in */; do
 	rm -f /tmp/update_available.log
 	rm -f /tmp/update_installed.log
 
+	# https://www.baeldung.com/linux/trim-whitespace-bash-variable
+	INSTALLED=`echo "$INSTALLED" | xargs`
+	AVAILABLE=`echo "$AVAILABLE" | xargs`
 	if [ "$AVAILABLE" == "$INSTALLED" ]; then
 		APP_MESSAGE="$DIR - OK ($AVAILABLE)"
 	else
