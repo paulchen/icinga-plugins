@@ -67,10 +67,15 @@ while True:
 
     names = [x['name'] for x in tags['results'] if has_image(x, os, arch, variant)]
 
-    regex = re.compile('^[0-9]+\.[0-9]+\.[0-9]+$')
+    regex = re.compile('^[0-9]+\.[0-9]+\.[0-9]+.*$')
     filtered_names = filter(regex.match, names)
     if len(sys.argv) > 3:
-        filtered_names = [n for n in filtered_names if n.startswith(sys.argv[3])]
+        regex = re.compile('^[0-9]+\.[0-9]+\.[0-9]+.*$')
+        filtered_names = filter(regex.match, names)
+        filtered_names = [n for n in filtered_names if n.startswith(sys.argv[3]) or n.endswith(sys.argv[3])]
+    else:
+        regex = re.compile('^[0-9]+\.[0-9]+\.[0-9]+$')
+        filtered_names = filter(regex.match, names)
 
     versions = [LooseVersion(v) for v in filtered_names]
     if len(versions) > 0:
