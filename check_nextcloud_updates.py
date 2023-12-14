@@ -1,5 +1,8 @@
 #!/usr/bin/python3
 
+# don't run this script too often as every request to the server info including
+# app updates will execute a call to apps.nextcloud.com
+
 import argparse, sys, json, requests
 
 parser = argparse.ArgumentParser(description='Checks for available updates on a Nextcloud instance')
@@ -24,7 +27,7 @@ with requests.Session() as s:
 
     # request the data
     try:
-        r = s.get(url + '/ocs/v2.php/apps/serverinfo/api/v1/info')
+        r = s.get(url + '/ocs/v2.php/apps/serverinfo/api/v1/info?skipApps=false')
     except requests.exceptions.ConnectionError as e:
         print('UNKNOWN: unable to fetch status: %s' % e)
         sys.exit(3)
