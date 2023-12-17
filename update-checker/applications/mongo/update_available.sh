@@ -7,5 +7,5 @@ if [ "$MAJOR_VERSION" == "" ]; then
 	exit 1
 fi
 
-../../lib/dockerhub.py library mongo "$MAJOR_VERSION"
+../../lib/dockerhub.py library mongo "$MAJOR_VERSION" '^[0-9]+\.[0-9]+\.[0-9]+$'
 
