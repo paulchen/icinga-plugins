@@ -75,6 +75,7 @@ else:
         returncode = subprocess.call(command, stdout=output, shell=False)
         if returncode > 0:
             print('Error running check_tags.sh')
+            error = True
 
 end_time = time.perf_counter()
 total_time = end_time - start_time
