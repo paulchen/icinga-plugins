@@ -11,14 +11,15 @@ for ID in $IDS; do
 	health=`docker inspect --format "{{.State.Health.Status }}" "$ID"`
 	if [ "$health" != "healthy" ]; then
 		UNHEALTHY=$((UNHEALTHY+1))
-		UNHEALTHY_IDS="$UNHEALTHY_IDS $ID"
+		NAME=`docker inspect --format "{{ .Name }}" "$ID"`
+		UNHEALTHY_IDS="$UNHEALTHY_IDS\n$ID ($NAME)"
 	fi
 done
 
 if [ "$UNHEALTHY" -eq "0" ]; then
 	echo "All containers healthy; $TOTAL containers total"
 else
-	echo "$UNHEALTHY/$TOTAL container(s) unhealthy; ids of unhealthy containers:$UNHEALTHY_IDS"
+	echo -e "$UNHEALTHY/$TOTAL container(s) unhealthy; ids of unhealthy containers:$UNHEALTHY_IDS"
 	exit 2
 fi
 
