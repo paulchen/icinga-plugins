@@ -1,6 +1,6 @@
 #!/bin/bash
 
-docker pull php:8.2-apache-bookworm || exit 1
+docker pull php:8.3-apache-bookworm || exit 1
 
 update() {
 	NAME="$1"
