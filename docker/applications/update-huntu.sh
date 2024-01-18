@@ -15,6 +15,7 @@ update() {
 
 update huntu-dev
 update huntu
+update huntu23
 
 if [ "$1" == "-f" ]; then
 	update huntu22
