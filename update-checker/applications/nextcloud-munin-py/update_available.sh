@@ -1,5 +1,5 @@
 #!/bin/bash
 
-../../lib/github_commit.sh mightyBroccoli/nextcloud-munin-py
+../../lib/github_commit.sh paulchen/nextcloud-munin-py
 
 
