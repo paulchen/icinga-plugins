@@ -6,7 +6,7 @@ from distutils.version import LooseVersion
 namespace = sys.argv[1]
 repository = sys.argv[2]
 
-url = f'https://registry.hub.docker.com/v2/namespaces/{namespace}/repositories/{repository}/tags?page_size=10'
+url = f'https://registry.hub.docker.com/v2/namespaces/{namespace}/repositories/{repository}/tags?page_size=50'
 
 
 def has_image(node, os, arch, variant):
@@ -57,7 +57,7 @@ while True:
         sys.exit(1)
 
     if latest_tag != None:
-        filtered_tags = [x for x in tags['results'] if x['digest'] == latest_tag and x['name'] != 'latest' and not x['name'].startswith('sha-') and has_image(x, os, arch, variant)]
+        filtered_tags = [x for x in tags['results'] if 'digest' in x and x['digest'] == latest_tag and x['name'] != 'latest' and not x['name'].startswith('sha-') and has_image(x, os, arch, variant)]
         if len(filtered_tags) == 1:
             print(filtered_tags[0]['name'])
             break
