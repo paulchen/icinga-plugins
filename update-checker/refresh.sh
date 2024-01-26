@@ -59,7 +59,7 @@ for DIR in */; do
 	UPDATE_FAIL=0
 	for a in 1 2 3; do
 		FAIL=0
-		AVAILABLE=`./update_available.sh` 2> /tmp/update_available.log || FAIL=1
+		AVAILABLE=`./update_available.sh 2> /tmp/update_available.log` || FAIL=1
 
 		log "Output from update_available.sh: $AVAILABLE"
 
@@ -77,7 +77,7 @@ for DIR in */; do
 	if [ "$UPDATE_FAIL" -eq "0" ]; then
 		for a in 1 2 3; do
 			FAIL=0
-			INSTALLED=`./update_installed.sh` 2> /tmp/update_installed.log || FAIL=1
+			INSTALLED=`./update_installed.sh 2> /tmp/update_installed.log` || FAIL=1
 
 			log "Output from update_installed.sh: $INSTALLED"
 
