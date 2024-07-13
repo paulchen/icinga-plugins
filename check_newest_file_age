@@ -202,12 +202,12 @@ if [ ! "$dirs" ]; then
   exit $STATE_UNKNOWN
 fi
 
-if [ `echo "$warning" | grep [^0-9]` ] || [ ! "$warning" ]; then
+if [ `echo "$warning" | grep "[^0-9]"` ] || [ ! "$warning" ]; then
   echo "Warning value must be a number."
   exit $STATE_UNKNOWN
 fi
 
-if [ `echo "$critical" | grep [^0-9]` ] || [ ! "$critical" ]; then
+if [ `echo "$critical" | grep "[^0-9]"` ] || [ ! "$critical" ]; then
   echo "Critical value must be a number."
   exit $STATE_UNKNOWN
 fi
