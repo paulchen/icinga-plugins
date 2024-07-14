@@ -8,7 +8,7 @@ if [ "$1" == "" ]; then
 	exit 3
 fi
 if [ "$2" == "" ]; then
-	COUNT=`netstat -tulpen|grep -c "$1"`
+	COUNT=`netstat -tulpen|grep -c ":$1 "`
 	if [ "$COUNT" -eq 0 ]; then
 		echo Port not open.
 		exit 2
@@ -18,7 +18,7 @@ if [ "$2" == "" ]; then
 	exit 0
 fi
 
-COUNT=`netstat -tulpen|grep "$1"|grep -c "$2"`
+COUNT=`netstat -tulpen|grep ":$1 "|grep -c "$2"`
 if [ "$COUNT" -eq 0 ]; then
 	echo Port not open.
 	exit 2
