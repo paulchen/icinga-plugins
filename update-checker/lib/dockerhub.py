@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 import requests, re, sys, platform
-from distutils.version import LooseVersion
+from looseversion import LooseVersion
 
 namespace = sys.argv[1]
 repository = sys.argv[2]
