@@ -1,0 +1,49 @@
+#!/usr/bin/php
+<?php
+
+# Simple script to check whether a numeric value stored on a memcached server
+# exceeds certain thresholds
+
+$options = getopt('h:p:k:w:c:');
+foreach($options as $key => $value) {
+	if(is_array($value)) {
+		echo("-$key can only be specified once\n");
+		die(3);
+	}
+}
+foreach(array('h', 'p', 'k', 'w', 'c') as $key) {
+	if(!isset($options[$key]) || chop($options[$key]) == '') {
+		echo("-$key not given or empty\n");
+		die(3);
+	}
+}
+foreach(array('p', 'w', 'c') as $key) {
+	if(!is_numeric($options[$key])) {
+		echo("-$key must be numeric\n");
+		die(3);
+	}
+}
+if($options['c'] <= $options['w']) {
+	echo("-c must be greater than -w\n");
+	die(3);
+}
+
+$memcached = new Memcached();
+$memcached->addServer($options['h'], $options['p']);
+$value = $memcached->get($options['k']);
+if($value === false) {
+	echo("${options['k']} not set or empty\n");
+	die(3);
+}
+if(!is_numeric($value)) {
+	echo("${options['k']} not numeric\n");
+	die(3);
+}
+echo("Current value of ${options['k']}: $value\n");
+if($value >= $options['c']) {
+	die(2);
+}
+if($value >= $options['w']) {
+	die(1);
+}
+
