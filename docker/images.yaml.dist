@@ -1,21 +1,26 @@
-- image: archlinux:base-devel
-  applications:
-  - wordle-archive
-- image: archlinux:base
-  applications:
-  - wordle-archive
-- image: nginx:latest
-  applications:
-  - departure-monitor
-  - rocketchat-archive
-- image: eclipse-temurin:17-jdk
-  applications:
-  - rocketchat-archive
-  - kotlin-rocket-bot
-- image: ubuntu:lunar
-  applications:
-  - docker-munin-mongodb
-- image: debian:bookworm-slim
-  applications:
-  - rocketchat-archive
-  - kotlin-rocket-bot
+checkscripts:
+  - command: [ '/bin/true' ]
+    applications:
+    - wordle-archive
+baseimages:
+  - image: archlinux:base-devel
+    applications:
+    - wordle-archive
+  - image: archlinux:base
+    applications:
+    - wordle-archive
+  - image: nginx:latest
+    applications:
+    - departure-monitor
+    - rocketchat-archive
+  - image: eclipse-temurin:17-jdk
+    applications:
+    - rocketchat-archive
+    - kotlin-rocket-bot
+  - image: ubuntu:lunar
+    applications:
+    - docker-munin-mongodb
+  - image: debian:bookworm-slim
+    applications:
+    - rocketchat-archive
+    - kotlin-rocket-bot

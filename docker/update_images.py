@@ -16,18 +16,54 @@ status_file = Path(__file__).resolve().parent / 'status'
 
 # https://stackoverflow.com/questions/1773805/how-can-i-parse-a-yaml-file-in-python
 with open(images_file, 'r') as stream:
-    images = yaml.safe_load(stream)
+    configuration = yaml.safe_load(stream)
 
-print(f'Data read from configuration file: {images}')
+print(f'Data read from configuration file: {configuration}')
 
 error = False
 to_update = set()
-for image in images:
+for script in configuration['checkscripts']:
+    if len(sys.argv) == 2 and sys.argv[1] == '-f':
+        for application in script['applications']:
+            print(f'Argument -f given, therefore adding {application} to the list of applications that need to be updated')
+            to_update.add(application)
+    else:
+        command = script['command']
+        # https://stackoverflow.com/a/28567888/8569278
+        if all(x in to_update for x in script['applications']):
+            print(f'Not running {command} as all applications have already determined to need an update')
+            continue
+
+        print(f'Executing {command}')
+        proc = subprocess.run(command, capture_output=True, shell=False)
+        print(proc.stdout)
+        if proc.returncode == 2:
+            print(f'Image is out of date')
+            for application in script['applications']:
+                print(f'Adding {application} to the list of applications that need to be updated')
+                to_update.add(application)
+        elif proc.returncode > 0:
+            print(f'Error running check script')
+            error = True
+        else:
+            print(f'Image is up to date')
+
+if error:
+    print('At least one check script did not complete successfully')
+    sys.exit(1)
+
+error = False
+for image in configuration['baseimages']:
     if len(sys.argv) == 2 and sys.argv[1] == '-f':
         for application in image['applications']:
             print(f'Argument -f given, therefore adding {application} to the list of applications that need to be updated')
             to_update.add(application)
     else:
+        # https://stackoverflow.com/a/28567888/8569278
+        if all(x in to_update for x in image['applications']):
+            print(f"Not checking base image {image['image']} as all applications have already determined to need an update")
+            continue
+
         command = [check_tag_script, image['image']]
         print(f'Executing {command}')
         proc = subprocess.run(command, capture_output=True, shell=False)
