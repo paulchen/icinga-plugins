@@ -14,7 +14,7 @@ rm -f /tmp/check_docker_tags
 if [ "$1" == "-" ]; then
 	TAGS=`cat`
 else
-	TAGS=`cat $1|grep '^- image: '|sed -e 's/- image: //'`
+	TAGS=`cat $1|grep '^  - image: '|sed -e 's/  - image: //'`
 fi
 DIRECTORY=`dirname $0`
 CHECK_SCRIPT="$DIRECTORY/check_tag.sh"
