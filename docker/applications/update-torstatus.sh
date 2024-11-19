@@ -9,7 +9,15 @@ if [ "$USER" == "paulchen" ]; then
 
 	cd /var/www/TorNetworkStatus
 
-	docker compose build --pull --no-cache || exit 1
+	# for some reason, "docker compose build --pull" doesn't pull all images as expected
+	IMAGES1=`grep image docker-compose.yml |sed -e 's/^\s*image:\s*//'`
+	IMAGES2=`find . -iname Dockerfile 2>/dev/null -exec grep -i from {} \;|sed -e 's/^\s*from\s*//i'`
+
+	for IMAGE in $IMAGES1 $IMAGES2; do
+		docker pull $IMAGE
+	done
+
+	docker compose build --no-cache || exit 1
 else
 	sudo -u paulchen "$0" || exit 1
 
