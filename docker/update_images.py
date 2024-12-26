@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
 
 from pathlib import Path
-import subprocess, yaml, time, functools, sys
+import subprocess, yaml, time, sys, logging
 
-# https://stackoverflow.com/questions/230751/how-can-i-flush-the-output-of-the-print-function
-print = functools.partial(print, flush=True)
+logger = logging.getLogger()
+handler = logging.StreamHandler(sys.stdout)
+handler.setFormatter(logging.Formatter('%(asctime)s %(name)-12s %(levelname)-8s %(message)s'))
+logger.addHandler(handler)
+logger.setLevel(logging.DEBUG)
 
 start_time = time.perf_counter()
 
@@ -18,75 +21,75 @@ status_file = Path(__file__).resolve().parent / 'status'
 with open(images_file, 'r') as stream:
     configuration = yaml.safe_load(stream)
 
-print(f'Data read from configuration file: {configuration}')
+logger.info('Data read from configuration file: %s', configuration)
 
 error = False
 to_update = set()
 for script in configuration['checkscripts']:
     if len(sys.argv) == 2 and sys.argv[1] == '-f':
         for application in script['applications']:
-            print(f'Argument -f given, therefore adding {application} to the list of applications that need to be updated')
+            logger.info('Argument -f given, therefore adding %s to the list of applications that need to be updated', application)
             to_update.add(application)
     else:
         command = script['command']
         # https://stackoverflow.com/a/28567888/8569278
         if all(x in to_update for x in script['applications']):
-            print(f'Not running {command} as all applications have already determined to need an update')
+            logger.info(f'Not running %s as all applications have already determined to need an update', command)
             continue
 
-        print(f'Executing {command}')
+        logger.info('Executing %s', command)
         proc = subprocess.run(command, capture_output=True, shell=False)
-        print(proc.stdout)
+        logger.info(proc.stdout)
         if proc.returncode == 2:
-            print(f'Image is out of date')
+            logger.info('Image is out of date')
             for application in script['applications']:
-                print(f'Adding {application} to the list of applications that need to be updated')
+                logger.info('Adding %s to the list of applications that need to be updated', application)
                 to_update.add(application)
         elif proc.returncode > 0:
-            print(f'Error running check script')
+            logger.error('Error running check script')
             error = True
         else:
-            print(f'Image is up to date')
+            logger.info('Image is up to date')
 
 if error:
-    print('At least one check script did not complete successfully')
+    logger.error('At least one check script did not complete successfully')
     sys.exit(1)
 
 error = False
 for image in configuration['baseimages']:
     if len(sys.argv) == 2 and sys.argv[1] == '-f':
         for application in image['applications']:
-            print(f'Argument -f given, therefore adding {application} to the list of applications that need to be updated')
+            logger.info('Argument -f given, therefore adding %s to the list of applications that need to be updated', application)
             to_update.add(application)
     else:
         # https://stackoverflow.com/a/28567888/8569278
         if all(x in to_update for x in image['applications']):
-            print(f"Not checking base image {image['image']} as all applications have already determined to need an update")
+            logger.info('Not checking base image %s as all applications have already determined to need an update', image['image'])
             continue
 
         command = [check_tag_script, image['image']]
-        print(f'Executing {command}')
+        logger.info('Executing %s', command)
         proc = subprocess.run(command, capture_output=True, shell=False)
-        print(proc.stdout)
+        logger.info(proc.stdout)
         if proc.returncode == 2:
-            print(f"Base image {image['image']} found to be out of date")
+            logger.info('Base image %s found to be out of date', image['image'])
             for application in image['applications']:
-                print(f'Adding {application} to the list of applications that need to be updated')
+                logger.info('Adding %s to the list of applications that need to be updated', application)
                 to_update.add(application)
         elif proc.returncode > 0:
-            print(f"Error checking whether {image['image']} is up to date")
+            logger.error('Error checking whether %s is up to date', image['image'])
             error = True
         else:
-            print(f"Base image {image['image']} is up to date")
+            logger.info('Base image %s is up to date', image['image'])
 
 if error:
-    print('At least one base image could not be checked')
+    logger.error('At least one base image could not be checked')
     sys.exit(1)
 
-print(f'Applications to update: {to_update}')
+logger.info('Applications to update: %s', to_update)
 
 for application in to_update:
-    print(f'Rebuilding {application}')
+    logger.info('Rebuilding %s', application)
 
     update_script = Path(__file__).resolve().parent / 'applications' / f'update-{application}.sh'
     if update_script.exists():
@@ -94,33 +97,33 @@ for application in to_update:
         command.extend(sys.argv[1:])
         returncode = subprocess.call(command)
         if returncode > 0:
-            print(f'Error rebuilding {application}')
+            logger.error('Error rebuilding %s', application)
             error = True
         else:
-            print(f'Rebuilding {application} finished')
+            logger.info('Rebuilding %s finished', application)
     else:
-        print(f'{application} cannot be rebuilt as script {update_script} cannot be found')
+        logger.error('%s cannot be rebuilt as script %s cannot be found', application, update_script)
 
 if error:
-    print('At least one error occurred, not running check_tags.sh')
+    logger.error('At least one error occurred, not running check_tags.sh')
 else:
-    print('Running check_tags.sh')
+    logger.info('Running check_tags.sh')
     # https://stackoverflow.com/questions/10177587/redirecting-the-output-of-shell-script-executing-through-python
     command = [check_tags_script, images_file]
     with open(status_file, 'w') as output:
         returncode = subprocess.call(command, stdout=output, shell=False)
         if returncode > 0:
-            print('Error running check_tags.sh')
+            logger.error('Error running check_tags.sh')
             error = True
 
 end_time = time.perf_counter()
 total_time = end_time - start_time
 
-print('Elapsed time: %s seconds' % (round(total_time, 2)))
+logger.info('Elapsed time: %s seconds', (round(total_time, 2)))
 
 if error:
-    print('Execution completed with errors')
+    logger.error('Execution completed with errors')
     sys.exit(1)
 else:
-    print('Execution successfully completed without any errors')
+    logger.info('Execution successfully completed without any errors')
 
