@@ -11,13 +11,15 @@ fi
 
 rm -f /tmp/check_docker_tags
 
+DIRECTORY=`dirname $0`
+PREPROCESS_SCRIPT="$DIRECTORY/preprocess.py"
+CHECK_SCRIPT="$DIRECTORY/check_tag.sh"
+
 if [ "$1" == "-" ]; then
 	TAGS=`cat`
 else
-	TAGS=`cat $1|grep '^  - image: '|sed -e 's/  - image: //'`
+	TAGS=`"$PREPROCESS_SCRIPT" "$1"`
 fi
-DIRECTORY=`dirname $0`
-CHECK_SCRIPT="$DIRECTORY/check_tag.sh"
 
 STATE=0
 for TAG in $TAGS; do

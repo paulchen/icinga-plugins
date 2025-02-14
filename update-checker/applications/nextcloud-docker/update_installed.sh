@@ -1,4 +1,6 @@
 #!/bin/bash
 
-../../lib/docker_image_version.sh nextcloud
+. /etc/default/nextcloud
+
+echo $NEXTCLOUD_VERSION
 

@@ -62,25 +62,32 @@ for image in configuration['baseimages']:
             logger.info('Argument -f given, therefore adding %s to the list of applications that need to be updated', application)
             to_update.add(application)
     else:
+        if 'envfile' in image:
+            image_name = image['image']
+            for key, value in (l.split('=') for l in open(image['envfile']) if l.strip() != ''):
+                image_name = image_name.replace('$' + key.strip(), value.strip())
+        else:
+            image_name = image['image']
+
         # https://stackoverflow.com/a/28567888/8569278
         if all(x in to_update for x in image['applications']):
-            logger.info('Not checking base image %s as all applications have already determined to need an update', image['image'])
+            logger.info('Not checking base image %s as all applications have already determined to need an update', image_name)
             continue
 
-        command = [check_tag_script, image['image']]
+        command = [check_tag_script, image_name]
         logger.info('Executing %s', command)
         proc = subprocess.run(command, capture_output=True, shell=False)
         logger.info(proc.stdout)
         if proc.returncode == 2:
-            logger.info('Base image %s found to be out of date', image['image'])
+            logger.info('Base image %s found to be out of date', image_name)
             for application in image['applications']:
                 logger.info('Adding %s to the list of applications that need to be updated', application)
                 to_update.add(application)
         elif proc.returncode > 0:
-            logger.error('Error checking whether %s is up to date', image['image'])
+            logger.error('Error checking whether %s is up to date', image_name)
             error = True
         else:
-            logger.info('Base image %s is up to date', image['image'])
+            logger.info('Base image %s is up to date', image_name)
 
 if error:
     logger.error('At least one base image could not be checked')
