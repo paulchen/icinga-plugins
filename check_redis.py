@@ -23,7 +23,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-import socket
+import redis
 import sys
 from optparse import OptionParser
 
@@ -32,24 +32,12 @@ EXIT_WARN = 1
 EXIT_CRITICAL = 2
 
 def get_info_host_port(host, port, timeout):
-    socket.setdefaulttimeout(timeout or None)
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.connect((host, port))
-    return get_info(s)
+    r = redis.Redis(host=host, port=port, socket_timeout=timeout)
+    return r.info()
 
 def get_info_unix(unix, timeout):
-    socket.setdefaulttimeout(timeout or None)
-    s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-    s.connect(unix)
-    return get_info(s)
-
-def get_info(s):
-    s.send(b"*1\r\n$4\r\ninfo\r\n")
-    buf = ""
-    while '\r\n\r\n' not in buf:
-        buf += s.recv(1024).decode('utf-8')
-    s.close()
-    return dict(x.split(':', 1) for x in buf.split('\r\n') if ':' in x)
+    r = redis.Redis(unix_socket_path=unix, socket_timeout=timeout)
+    return r.info()
 
 def build_parser():
     parser = OptionParser()
@@ -74,7 +62,7 @@ def main():
             info = get_info_unix(options.unix, timeout=options.timeout / 1000.0)
         else:
             info = get_info_host_port(options.server, int(options.port), timeout=options.timeout / 1000.0)
-    except socket.error as exc:
+    except Exception as exc:
         print("CRITICAL: Error connecting or getting INFO from redis %s:%s: %s" % (options.server, options.port, exc))
         sys.exit(EXIT_CRITICAL)
 
