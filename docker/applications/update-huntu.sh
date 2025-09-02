@@ -1,6 +1,6 @@
 #!/bin/bash
 
-docker pull php:8.4-apache-bookworm || exit 1
+docker pull php:8.4-apache-trixie || exit 1
 
 update() {
 	NAME="$1"
