@@ -13,14 +13,35 @@ if [ ! -f "$1" ]; then
 	exit 3
 fi
 
-WARNING=`grep -c iwarn $FILE`
-WARNING=$((WARNING/2))
+DELETE=0
+IGNORE=$2
+if [ "$IGNORE" == "" ]; then
+	IGNORE=$(mktemp /tmp/tmpfile.XXXXX)
+	DELETE=1
+fi
 
-CRITICAL=`grep -c icrit $FILE`
-CRITICAL=$((CRITICAL/2))
+parse() {
+	FILE=$1
+	CLASS=$2
+	IGNORE=$3
 
-UNKNOWN=`grep -c iunkn $FILE`
-UNKNOWN=$((UNKNOWN/2))
+	cat "$FILE" \
+		| hxnormalize -x \
+		| hxselect -s '\n' "img[class~=\"$CLASS\"]" \
+		| sed -n 's/.*src="\([^"]*\)".*/\1/p' \
+		| sed 's#.*/##' \
+		| sed 's/-[^-]*$//' \
+		| sort -u \
+		| grep -cvxFf "$IGNORE"
+}
+
+WARNING=`parse "$FILE" iwarn "$IGNORE"`
+CRITICAL=`parse "$FILE" icrit "$IGNORE"`
+UNKNOWN=`parse "$FILE" iunkn "$IGNORE"`
+
+if [ "$DELETE" -eq "1" ]; then
+	rm -f "$IGNORE"
+fi
 
 echo "Munin status: $WARNING/$CRITICAL/$UNKNOWN (warning/critical/unknown)"
 
