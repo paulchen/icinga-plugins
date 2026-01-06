@@ -36,6 +36,6 @@ for LOCAL in $LOCALS; do
 	fi
 done
 
-echo "$1: update available ($REMOTE)"
+echo "$1: update available ($LOCAL -> $REMOTE)"
 exit 2
 
