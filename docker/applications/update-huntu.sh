@@ -15,6 +15,7 @@ update() {
 
 update huntu-dev
 update huntu
+update huntu25
 update huntu24
 update huntu23
 
