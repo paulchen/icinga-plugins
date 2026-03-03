@@ -2,7 +2,7 @@
 
 ROCKETCHAT_VERSION=`../rocketchat/update_installed.sh`
 
-MAJOR_VERSION=`curl "https://releases.rocket.chat/$ROCKETCHAT_VERSION/info" -s 2> /dev/null | jq '.compatibleMongoVersions | sort_by(.) | reverse | .[0]' -r 2> /dev/null`
+MAJOR_VERSION=`curl "https://releases.rocket.chat/$ROCKETCHAT_VERSION/info" -s 2> /dev/null | jq '.compatibleMongoVersions | sort_by(.) | reverse | .[0]' -r 2> /dev/null | sed 's/\..*$//'`
 
 if [ "$MAJOR_VERSION" == "" ]; then
 	echo "Unable to fetch supported MongoDB versions from Rocket.Chat"
