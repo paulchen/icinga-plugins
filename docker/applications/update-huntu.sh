@@ -1,6 +1,9 @@
 #!/bin/bash
 
 docker pull php:8.5-apache-trixie || exit 1
+docker pull composer:latest || exit 1
+docker pull openapitools/openapi-generator-cli:latest || exit 1
+docker pull node:24 || exit 1
 
 update() {
 	NAME="$1"
