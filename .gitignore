@@ -1,3 +1,4 @@
 cert_checklist_*/*
 docker/status
 docker/images.yaml
+update-checker/.config
