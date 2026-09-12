@@ -3,23 +3,35 @@
 IDS=`docker ps -q`
 
 TOTAL=0
-UNHEALTHY=0
-UNHEALTHY_IDS=""
+declare -A COUNTS
+
 for ID in $IDS; do
 	TOTAL=$((TOTAL+1))
 
-	health=`docker inspect --format "{{.State.Health.Status }}" "$ID"`
-	if [ "$health" != "healthy" ]; then
-		UNHEALTHY=$((UNHEALTHY+1))
-		NAME=`docker inspect --format "{{ .Name }}" "$ID"`
-		UNHEALTHY_IDS="$UNHEALTHY_IDS\n$ID ($NAME)"
-	fi
+	# Possible values include:
+	#   healthy, unhealthy, starting
+	# Containers without a HEALTHCHECK are counted as "none".
+	HEALTH=$(docker inspect --format '{{if .State.Health}}{{.State.Health.Status}}{{else}}none{{end}}' "$ID")
+	COUNTS["$HEALTH"]=$(( ${COUNTS["$HEALTH"]:-0} + 1 ))
 done
 
-if [ "$UNHEALTHY" -eq "0" ]; then
-	echo "All containers healthy; $TOTAL containers total"
-else
-	echo -e "$UNHEALTHY/$TOTAL container(s) unhealthy; ids of unhealthy containers:$UNHEALTHY_IDS"
+echo -n "Total containers: $TOTAL"
+
+# Sort the state names for deterministic output.
+for STATE in $(printf '%s\n' "${!COUNTS[@]}" | sort); do
+	echo -n "; $STATE: ${COUNTS[$STATE]}"
+done
+echo ""
+
+# Exit status:
+#   0 = all containers healthy
+#   2 = at least one unhealthy container
+#   1 = no unhealthy containers, but at least one is not healthy
+if [ "${COUNTS[unhealthy]:-0}" -gt 0 ]; then
 	exit 2
+elif [ "${COUNTS[healthy]:-0}" -eq "$TOTAL" ]; then
+	exit 0
+else
+	exit 1
 fi
 
