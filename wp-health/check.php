@@ -5,6 +5,8 @@ $wp_root = getenv('WP_ROOT');
 $wp_username = getenv('WP_USERNAME');
 $wp_password = getenv('WP_PASSWORD');
 
+$local_address = getenv('LOCAL_ADDRESS');
+
 if(!$wp_root || !$wp_username || !$wp_password) {
 	echo "UNKNOWN: missing environment variable(s)\n";
 	die(3);
@@ -14,6 +16,9 @@ $ch = curl_init();
 curl_setopt($ch, CURLOPT_URL, "$wp_root/wp-health.php");
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($ch, CURLOPT_USERPWD, "$wp_username:$wp_password");
+if($local_address) {
+	curl_setopt($ch, CURLOPT_INTERFACE, $local_address);
+}
 $response = curl_exec($ch);
 if(!$response) {
 	$error = curl_error($ch);
@@ -28,6 +33,7 @@ if($status_code < 200 || $status_code > 299) {
 }
 
 $result = json_decode($response);
+print("$response\n");
 if(!$result || !isset($result->tests, $result->tests->successful, $result->tests->failed)) {
 	echo "UNKNOWN: invalid JSON response\n";
 	die(3);
