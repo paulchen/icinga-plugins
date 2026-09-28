@@ -4,6 +4,7 @@ IDS=`docker ps -q`
 
 TOTAL=0
 declare -A COUNTS
+declare -A CONTAINERS
 
 for ID in $IDS; do
 	TOTAL=$((TOTAL+1))
@@ -12,7 +13,13 @@ for ID in $IDS; do
 	#   healthy, unhealthy, starting
 	# Containers without a HEALTHCHECK are counted as "none".
 	HEALTH=$(docker inspect --format '{{if .State.Health}}{{.State.Health.Status}}{{else}}none{{end}}' "$ID")
+	NAME=$(docker inspect --format '{{.Name}}' "$ID")
+	NAME="${NAME#/}"
+
 	COUNTS["$HEALTH"]=$(( ${COUNTS["$HEALTH"]:-0} + 1 ))
+	if [ "$HEALTH" != "healthy" ]; then
+        	CONTAINERS["$HEALTH"]+=$'\n'"  $ID ($NAME)"
+	fi
 done
 
 echo -n "Total containers: $TOTAL"
@@ -22,6 +29,14 @@ for STATE in $(printf '%s\n' "${!COUNTS[@]}" | sort); do
 	echo -n "; $STATE: ${COUNTS[$STATE]}"
 done
 echo ""
+
+for STATE in $(printf '%s\n' "${!COUNTS[@]}" | sort); do
+	if [ "$STATE" != "healthy" ]; then
+		echo
+		echo "Containers in state '$STATE':"
+		printf '%s\n' "${CONTAINERS[$STATE]}"
+	fi
+done
 
 # Exit status:
 #   0 = all containers healthy
